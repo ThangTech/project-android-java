@@ -1,0 +1,156 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "question": "Thủ đô của Việt Nam là thành phố nào?",
+      "options": ["TP. Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Huế"],
+      "correct": 1,
+      "level": 1
+    },
+    {
+      "id": 2,
+      "question": "Một năm có bao nhiêu tháng?",
+      "options": ["10", "11", "12", "13"],
+      "correct": 2,
+      "level": 1
+    },
+    {
+      "id": 3,
+      "question": "Con vật nào được gọi là 'Chúa tể sơn lâm'?",
+      "options": ["Voi", "Gấu", "Hổ", "Sư tử"],
+      "correct": 2,
+      "level": 1
+    },
+    {
+      "id": 4,
+      "question": "Màu nào là màu của lá cây?",
+      "options": ["Đỏ", "Xanh lá", "Vàng", "Tím"],
+      "correct": 1,
+      "level": 2
+    },
+    {
+      "id": 5,
+      "question": "Nước nào có dân số đông nhất thế giới?",
+      "options": ["Mỹ", "Ấn Độ", "Trung Quốc", "Brazil"],
+      "correct": 1,
+      "level": 2
+    },
+    {
+      "id": 6,
+      "question": "Đại dương nào lớn nhất thế giới?",
+      "options": ["Đại Tây Dương", "Ấn Độ Dương", "Thái Bình Dương", "Bắc Băng Dương"],
+      "correct": 2,
+      "level": 3
+    },
+    {
+      "id": 7,
+      "question": "Ai là tác giả của tác phẩm 'Truyện Kiều'?",
+      "options": ["Nguyễn Trãi", "Nguyễn Du", "Hồ Xuân Hương", "Tú Xương"],
+      "correct": 1,
+      "level": 4
+    },
+    {
+      "id": 8,
+      "question": "Nguyên tố hóa học nào có ký hiệu 'Au'?",
+      "options": ["Bạc", "Đồng", "Nhôm", "Vàng"],
+      "correct": 3,
+      "level": 5
+    },
+    {
+      "id": 9,
+      "question": "Trái Đất cách Mặt Trời khoảng bao nhiêu km?",
+      "options": ["50 triệu km", "100 triệu km", "150 triệu km", "300 triệu km"],
+      "correct": 2,
+      "level": 5
+    },
+    {
+      "id": 10,
+      "question": "Ngôn ngữ lập trình nào do James Gosling tạo ra?",
+      "options": ["Python", "C++", "Java", "Ruby"],
+      "correct": 2,
+      "level": 6
+    },
+    {
+      "id": 11,
+      "question": "Tốc độ ánh sáng trong chân không là bao nhiêu?",
+      "options": ["100.000 km/s", "200.000 km/s", "300.000 km/s", "400.000 km/s"],
+      "correct": 2,
+      "level": 6
+    },
+    {
+      "id": 12,
+      "question": "Bức tường Berlin sụp đổ vào năm nào?",
+      "options": ["1987", "1988", "1989", "1991"],
+      "correct": 2,
+      "level": 7
+    },
+    {
+      "id": 13,
+      "question": "Ai là người đầu tiên đặt chân lên Mặt Trăng?",
+      "options": ["Yuri Gagarin", "Neil Armstrong", "Buzz Aldrin", "Michael Collins"],
+      "correct": 1,
+      "level": 8
+    },
+    {
+      "id": 14,
+      "question": "DNA là viết tắt của cụm từ nào?",
+      "options": [
+        "Deoxyribose Nucleic Acid",
+        "Dynamic Nucleic Arrangement",
+        "Deoxyribonucleic Acid",
+        "Double Nucleic Arrangement"
+      ],
+      "correct": 2,
+      "level": 9
+    },
+    {
+      "id": 15,
+      "question": "Năm 1969, tàu vũ trụ nào đưa con người lên Mặt Trăng lần đầu tiên?",
+      "options": ["Apollo 10", "Apollo 11", "Apollo 12", "Gemini 11"],
+      "correct": 1,
+      "level": 10
+    },
+    {
+      "id": 16,
+      "question": "Công thức hóa học của nước là gì?",
+      "options": ["HO2", "H2O2", "H2O", "HO"],
+      "correct": 2,
+      "level": 8
+    },
+    {
+      "id": 17,
+      "question": "Thành phố nào được mệnh danh là 'Kinh đô ánh sáng'?",
+      "options": ["London", "New York", "Tokyo", "Paris"],
+      "correct": 3,
+      "level": 9
+    },
+    {
+      "id": 18,
+      "question": "Lý thuyết tương đối hẹp được Albert Einstein công bố năm nào?",
+      "options": ["1900", "1905", "1915", "1920"],
+      "correct": 1,
+      "level": 12
+    },
+    {
+      "id": 19,
+      "question": "Hằng số Avogadro có giá trị xấp xỉ bằng bao nhiêu?",
+      "options": ["6.022 × 10²²", "6.022 × 10²³", "6.022 × 10²⁴", "3.14 × 10²³"],
+      "correct": 1,
+      "level": 13
+    },
+    {
+      "id": 20,
+      "question": "Người đoạt giải Nobel Văn học đầu tiên là ai?",
+      "options": ["Leo Tolstoy", "Rudyard Kipling", "Sully Prudhomme", "Bjørnstjerne Bjørnson"],
+      "correct": 2,
+      "level": 14
+    },
+    {
+      "id": 21,
+      "question": "Hệ điều hành Android dựa trên nhân (kernel) nào?",
+      "options": ["Windows NT", "Darwin", "Linux", "BSD"],
+      "correct": 2,
+      "level": 15
+    }
+  ]
+}
