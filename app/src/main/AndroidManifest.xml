@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Projectandroidjava">
         <activity
+            android:name=".ui.ResultActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.GameActivity"
             android:exported="false" />
         <activity

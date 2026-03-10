@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Lưu tại: res/layout/activity_result.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:background="#0A0520"
+    android:padding="24dp">
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <!-- Icon kết quả -->
+    <TextView
+        android:id="@+id/tv_result_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🏆"
+        android:textSize="72sp"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Tiêu đề: CHÚC MỪNG / RẤT TIẾC -->
+    <TextView
+        android:id="@+id/tv_result_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="KẾT QUẢ"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="#FFD700"
+        android:layout_marginBottom="32dp"/>
+
+    <!-- Label tiền -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Số tiền đạt được"
+        android:textSize="14sp"
+        android:textColor="#AAAACC"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Số tiền lớn -->
+    <TextView
+        android:id="@+id/tv_money_earned"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 đ"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:textColor="#FFD700"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Số câu đã trả lời đúng -->
+    <TextView
+        android:id="@+id/tv_question_reached"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Đã trả lời đúng 0 / 15 câu"
+        android:textSize="14sp"
+        android:textColor="#AAAACC"/>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <!-- Nút Chơi lại -->
+    <Button
+        android:id="@+id/btn_play_again"
+        android:layout_width="240dp"
+        android:layout_height="54dp"
+        android:text="◆  CHƠI LẠI  ◆"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="#FFD700"
+        android:background="@drawable/btn_hex_normal"
+        android:stateListAnimator="@null"
+        android:layout_marginBottom="14dp"/>
+
+    <!-- Nút Về menu -->
+    <Button
+        android:id="@+id/btn_main_menu"
+        android:layout_width="240dp"
+        android:layout_height="54dp"
+        android:text="◆  VỀ MENU  ◆"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="#AAAACC"
+        android:background="@drawable/btn_hex_normal"
+        android:stateListAnimator="@null"
+        android:layout_marginBottom="24dp"/>
+
+</LinearLayout>
