@@ -1,13 +1,17 @@
 package com.example.project_android_java.ui;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
+import android.view.Gravity;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.project_android_java.R;
+import com.example.project_android_java.manager.GameManager;
 import com.example.project_android_java.manager.QuestionManager;
 import com.example.project_android_java.model.Question;
 
@@ -16,16 +20,15 @@ import java.util.List;
 /**
  * GAME ACTIVITY - Màn hình chơi game chính.
  *
- * 📚 Kiến thức cần biết:
- *  - Intent.putExtra(): truyền dữ liệu sang Activity khác
- *  - Cập nhật UI động: setText(), setEnabled()
- *  - Mảng Button[]: quản lý 4 nút đáp án gọn hơn
- *  - MONEY_LADDER[]: mảng mốc tiền thưởng
+ * 📚 Kiến thức:
+ *  - GameManager: tách logic game ra class riêng (Single Responsibility)
+ *  - ViewPropertyAnimator: animate View properties mượt mà
+ *  - buildMoneyLadder(): tạo View động bằng code (không dùng XML cứng)
+ *  - Handler.postDelayed(): delay action sau animation
  */
 public class GameActivity extends AppCompatActivity {
 
     // ── Mốc tiền thưởng 15 câu ───────────────────────────────────────────────
-    // Index 0 = câu 1, index 14 = câu 15
     public static final long[] MONEY_LADDER = {
             200_000L,       // Câu 1
             400_000L,       // Câu 2
@@ -45,17 +48,15 @@ public class GameActivity extends AppCompatActivity {
     };
 
     // ── Views ─────────────────────────────────────────────────────────────────
-    private TextView tvQuestion;       // Hiển thị câu hỏi
-    private TextView tvQuestionNumber; // "Câu 1/15"
-    private TextView tvCurrentMoney;   // Số tiền hiện tại
-    private Button[] answerButtons;    // [btnA, btnB, btnC, btnD]
+    private TextView tvQuestion;
+    private TextView tvQuestionNumber;
+    private TextView tvCurrentMoney;
+    private Button[] answerButtons;
+    private TextView[] ladderViews;   // 15 ô trong thanh mốc tiền
 
     // ── Game State ────────────────────────────────────────────────────────────
-    private List<Question> questions;  // 15 câu hỏi của ván này
-    private int currentIndex = 0;      // Đang ở câu số mấy (0-14)
-    private Question currentQuestion;  // Câu hỏi hiện tại
+    private GameManager gameManager;
 
-    // ── Prefix đáp án ─────────────────────────────────────────────────────────
     private static final String[] OPTION_LABELS = {"A. ", "B. ", "C. ", "D. "};
 
     @Override
@@ -64,7 +65,8 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
 
         initViews();
-        loadQuestions();
+        initGame();
+        buildMoneyLadder();
         showQuestion();
     }
 
@@ -75,7 +77,6 @@ public class GameActivity extends AppCompatActivity {
         tvQuestionNumber = findViewById(R.id.tv_question_number);
         tvCurrentMoney   = findViewById(R.id.tv_current_money);
 
-        // Gom 4 nút đáp án vào mảng để xử lý gọn hơn
         answerButtons = new Button[]{
                 findViewById(R.id.btn_answer_a),
                 findViewById(R.id.btn_answer_b),
@@ -83,150 +84,202 @@ public class GameActivity extends AppCompatActivity {
                 findViewById(R.id.btn_answer_d)
         };
 
-        // Gắn click listener cho từng nút
         for (int i = 0; i < answerButtons.length; i++) {
-            final int index = i; // phải là final để dùng trong lambda
+            final int index = i;
             answerButtons[i].setOnClickListener(v -> onAnswerSelected(index));
         }
     }
 
-    private void loadQuestions() {
+    private void initGame() {
         QuestionManager qm = QuestionManager.getInstance(this);
         qm.loadQuestions();
-        questions = qm.getGameQuestions();
+        List<Question> questions = qm.getGameQuestions();
+        gameManager = new GameManager(questions);
+    }
+
+    // ── Thanh mốc tiền ───────────────────────────────────────────────────────
+
+    /**
+     * Tạo 15 ô mốc tiền trong panel bên phải bằng code.
+     * Hiển thị từ câu 15 (trên cùng) → câu 1 (dưới cùng) như game thật.
+     *
+     * 📚 Tạo View bằng code: new TextView(this), addView()
+     *    Thay vì khai báo cứng 15 item trong XML (dài và khó maintain).
+     */
+    private void buildMoneyLadder() {
+        LinearLayout container = findViewById(R.id.ll_money_ladder);
+        container.removeAllViews();
+        ladderViews = new TextView[15];
+
+        for (int i = 14; i >= 0; i--) {
+            TextView tv = new TextView(this);
+
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.setMargins(6, 2, 6, 2);
+            tv.setLayoutParams(lp);
+
+            tv.setPadding(6, 8, 6, 8);
+            tv.setTextSize(10.5f);
+            tv.setGravity(Gravity.CENTER);
+
+            // ★ cho mốc an toàn, số thường cho câu bình thường
+            String label = gameManager.isSafeCheckpoint(i)
+                    ? "★" + (i + 1)
+                    : String.valueOf(i + 1);
+            tv.setText(label + "\n" + formatMoneyShort(MONEY_LADDER[i]));
+
+            ladderViews[i] = tv;
+            container.addView(tv);
+        }
+
+        updateLadder();
+    }
+
+    /**
+     * Cập nhật màu sắc các ô mốc tiền theo câu hiện tại.
+     *
+     * 3 trạng thái:
+     *  - Câu đang chơi   → vàng (nổi bật)
+     *  - Mốc an toàn     → xanh lá
+     *  - Câu thường      → tím tối (đã qua thì mờ hơn)
+     */
+    private void updateLadder() {
+        int current = gameManager.getCurrentIndex();
+        for (int i = 0; i < 15; i++) {
+            if (i == current && gameManager.isPlaying()) {
+                ladderViews[i].setBackgroundResource(R.drawable.bg_ladder_current);
+                ladderViews[i].setTextColor(Color.BLACK);
+            } else if (gameManager.isSafeCheckpoint(i)) {
+                ladderViews[i].setBackgroundResource(R.drawable.bg_ladder_safe);
+                // Đã qua mốc an toàn → màu nhạt hơn
+                ladderViews[i].setTextColor(i < current ? 0xFFAED581 : 0xFF4CAF50);
+            } else {
+                ladderViews[i].setBackgroundResource(R.drawable.bg_ladder_normal);
+                // Đã qua → mờ, chưa đến → trắng
+                ladderViews[i].setTextColor(i < current ? 0xFF555577 : Color.WHITE);
+            }
+        }
     }
 
     // ── Hiển thị câu hỏi ─────────────────────────────────────────────────────
 
-    /**
-     * Hiển thị câu hỏi hiện tại lên màn hình.
-     * Gọi mỗi khi chuyển sang câu mới.
-     */
     private void showQuestion() {
-        currentQuestion = questions.get(currentIndex);
+        Question q   = gameManager.getCurrentQuestion();
+        int idx      = gameManager.getCurrentIndex();
 
-        // Cập nhật số câu và tiền
-        tvQuestionNumber.setText("Câu " + (currentIndex + 1) + " / 15");
-        tvCurrentMoney.setText(formatMoney(MONEY_LADDER[currentIndex]));
+        tvQuestionNumber.setText("Câu " + (idx + 1) + " / 15");
+        tvCurrentMoney.setText(formatMoney(MONEY_LADDER[idx]));
+        tvQuestion.setText(q.getQuestionText());
 
-        // Hiển thị nội dung câu hỏi
-        tvQuestion.setText(currentQuestion.getQuestionText());
-
-        // Hiển thị 4 đáp án
-        String[] options = currentQuestion.getOptions();
+        String[] options = q.getOptions();
         for (int i = 0; i < answerButtons.length; i++) {
             answerButtons[i].setText(OPTION_LABELS[i] + options[i]);
             answerButtons[i].setEnabled(true);
-            // Reset màu nút về mặc định (xanh dương)
             answerButtons[i].setBackgroundResource(R.drawable.btn_hex_normal);
+            // Reset scale phòng khi còn dư từ animation trước
+            answerButtons[i].setScaleX(1f);
+            answerButtons[i].setScaleY(1f);
         }
+
+        updateLadder();
     }
 
     // ── Xử lý chọn đáp án ────────────────────────────────────────────────────
 
-    /**
-     * Gọi khi người chơi bấm vào một đáp án.
-     * @param selectedIndex: 0=A, 1=B, 2=C, 3=D
-     */
     private void onAnswerSelected(int selectedIndex) {
-        // Disable tất cả nút để không bấm lại được
         setAllButtonsEnabled(false);
 
-        if (currentQuestion.isCorrect(selectedIndex)) {
+        boolean correct = gameManager.checkAnswer(selectedIndex);
+        if (correct) {
             onCorrectAnswer(selectedIndex);
         } else {
             onWrongAnswer(selectedIndex);
         }
     }
 
-    /**
-     * Xử lý khi trả lời ĐÚNG.
-     * Đổi màu nút sang xanh lá → delay 1.5s → chuyển câu tiếp.
-     */
     private void onCorrectAnswer(int selectedIndex) {
-        // Đổi màu nút đúng sang xanh lá
-        answerButtons[selectedIndex].setBackgroundResource(R.drawable.btn_hex_correct);
+        animateButton(answerButtons[selectedIndex], true);
 
-        // Delay 1.5 giây rồi chuyển câu tiếp
-        // Handler.postDelayed: chạy code sau một khoảng thời gian (ms)
         new android.os.Handler().postDelayed(() -> {
-            currentIndex++;
-
-            if (currentIndex >= 15) {
-                // Hoàn thành tất cả 15 câu → Thắng!
+            gameManager.advance();
+            if (gameManager.getState() == GameManager.State.WON) {
                 goToResult(true, MONEY_LADDER[14]);
             } else {
-                // Còn câu tiếp → hiển thị câu mới
                 showQuestion();
             }
-        }, 1500); // 1500ms = 1.5 giây
+        }, 1500);
     }
 
-    /**
-     * Xử lý khi trả lời SAI.
-     * Đổi màu nút sai sang đỏ + hiện đáp án đúng xanh → delay → kết thúc.
-     */
     private void onWrongAnswer(int selectedIndex) {
-        // Nút bị chọn → đỏ
-        answerButtons[selectedIndex].setBackgroundResource(R.drawable.btn_hex_wrong);
+        animateButton(answerButtons[selectedIndex], false);
 
-        // Hiện đáp án đúng → xanh lá
-        int correctIndex = currentQuestion.getCorrectAnswerIndex();
-        answerButtons[correctIndex].setBackgroundResource(R.drawable.btn_hex_correct);
+        // Sau 300ms mới hiện đáp án đúng để người chơi thấy rõ nút sai trước
+        int correctIdx = gameManager.getCorrectIndex();
+        new android.os.Handler().postDelayed(() ->
+                answerButtons[correctIdx].setBackgroundResource(R.drawable.btn_hex_correct),
+        300);
 
-        // Tính tiền nhận được (về mốc an toàn gần nhất)
-        long moneyEarned = getSafeMoney();
+        gameManager.setLost();
+        long moneyEarned = gameManager.getMoneyEarned();
 
-        // Delay 2 giây rồi chuyển sang màn hình kết quả
-        new android.os.Handler().postDelayed(() -> {
-            goToResult(false, moneyEarned);
-        }, 2000);
+        new android.os.Handler().postDelayed(() ->
+                goToResult(false, moneyEarned),
+        2000);
     }
 
+    // ── Animation ─────────────────────────────────────────────────────────────
+
     /**
-     * Tính số tiền nhận được khi thua.
-     * Trả về tiền của mốc an toàn gần nhất đã vượt qua.
-     *  - Chưa qua câu 5  → 0đ
-     *  - Qua câu 5-9     → 2.000.000đ
-     *  - Qua câu 10+     → 22.000.000đ
+     * Hiệu ứng pulse khi chọn đáp án: phóng to nhẹ → thu về → đổi màu.
+     *
+     * 📚 ViewPropertyAnimator (btn.animate()):
+     *  - API fluent, dễ đọc hơn ObjectAnimator
+     *  - withEndAction(): callback sau khi animation kết thúc
+     *  - Chaining: .scaleX().scaleY().setDuration() trên cùng 1 dòng
      */
-    private long getSafeMoney() {
-        if (currentIndex >= 10) return MONEY_LADDER[9];  // 22 triệu
-        if (currentIndex >= 5)  return MONEY_LADDER[4];  //  2 triệu
-        return 0L;
+    private void animateButton(Button btn, boolean correct) {
+        int drawableRes = correct ? R.drawable.btn_hex_correct : R.drawable.btn_hex_wrong;
+
+        btn.animate()
+                .scaleX(1.07f)
+                .scaleY(1.07f)
+                .setDuration(120)
+                .withEndAction(() -> {
+                    btn.setBackgroundResource(drawableRes);
+                    btn.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(120)
+                            .start();
+                }).start();
     }
 
     // ── Điều hướng ───────────────────────────────────────────────────────────
 
-    /**
-     * Chuyển sang màn hình kết quả.
-     * putExtra(): đóng gói dữ liệu vào Intent để truyền sang Activity khác.
-     *
-     * @param isWin: true = thắng, false = thua
-     * @param money: số tiền đạt được
-     */
     private void goToResult(boolean isWin, long money) {
         Intent intent = new Intent(this, ResultActivity.class);
         intent.putExtra("IS_WIN", isWin);
         intent.putExtra("MONEY_EARNED", money);
-        intent.putExtra("QUESTION_REACHED", currentIndex + 1);
+        intent.putExtra("QUESTION_REACHED", gameManager.getCurrentIndex() + 1);
         startActivity(intent);
-        finish(); // Đóng GameActivity, không cho back lại
+        finish();
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     private void setAllButtonsEnabled(boolean enabled) {
-        for (Button btn : answerButtons) {
-            btn.setEnabled(enabled);
-        }
+        for (Button btn : answerButtons) btn.setEnabled(enabled);
     }
 
-    /**
-     * Format số tiền: 150000000 → "150.000.000 đ"
-     */
     public static String formatMoney(long amount) {
-        // String.format với grouping separator
         return String.format("%,d đ", amount).replace(',', '.');
+    }
+
+    /** Format gọn cho thanh mốc tiền: 150000000 → "150tr", 200000 → "200K" */
+    private String formatMoneyShort(long amount) {
+        if (amount >= 1_000_000) return (amount / 1_000_000) + "tr";
+        return (amount / 1_000) + "K";
     }
 }

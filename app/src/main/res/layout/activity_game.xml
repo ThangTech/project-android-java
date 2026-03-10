@@ -1,146 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Lưu tại: res/layout/activity_game.xml -->
 <!--
-    Màn hình game gồm (từ trên xuống):
-    1. Header: số câu + tiền hiện tại
-    2. Câu hỏi
-    3. 4 nút đáp án
+    Màn hình game gồm 2 cột:
+    - Trái (weight=3): header + câu hỏi + 4 nút đáp án
+    - Phải (weight=1): thanh mốc tiền 15 mức
 -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#0A0520"
-    android:padding="16dp">
+    android:orientation="horizontal"
+    android:background="#0A0520">
 
-    <!-- ── Header: số câu + tiền ── -->
+    <!-- ── Khu vực chơi chính (cột trái) ── -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="8dp">
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="3"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tv_question_number"
-            android:layout_width="0dp"
+        <!-- Header: số câu + tiền hiện tại -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Câu 1 / 15"
-            android:textColor="#AAAACC"
-            android:textSize="14sp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
 
+            <TextView
+                android:id="@+id/tv_question_number"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Câu 1 / 15"
+                android:textColor="#AAAACC"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:id="@+id/tv_current_money"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="200.000 đ"
+                android:textColor="#FFD700"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <!-- Đường kẻ ngang -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#2A2A5A"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Khoảng trống đẩy câu hỏi xuống giữa -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <!-- Câu hỏi -->
         <TextView
-            android:id="@+id/tv_current_money"
-            android:layout_width="wrap_content"
+            android:id="@+id/tv_question"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="200.000 đ"
-            android:textColor="#FFD700"
-            android:textSize="16sp"
-            android:textStyle="bold"/>
+            android:text="Nội dung câu hỏi sẽ hiện ở đây?"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:lineSpacingMultiplier="1.3"
+            android:padding="16dp"
+            android:background="@drawable/bg_question"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Khoảng trống -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <!-- Hàng A + B -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
+
+            <Button
+                android:id="@+id/btn_answer_a"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text="A. Đáp án"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:background="@drawable/btn_hex_normal"
+                android:stateListAnimator="@null"
+                android:layout_marginEnd="6dp"/>
+
+            <Button
+                android:id="@+id/btn_answer_b"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text="B. Đáp án"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:background="@drawable/btn_hex_normal"
+                android:stateListAnimator="@null"
+                android:layout_marginStart="6dp"/>
+        </LinearLayout>
+
+        <!-- Hàng C + D -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="24dp">
+
+            <Button
+                android:id="@+id/btn_answer_c"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text="C. Đáp án"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:background="@drawable/btn_hex_normal"
+                android:stateListAnimator="@null"
+                android:layout_marginEnd="6dp"/>
+
+            <Button
+                android:id="@+id/btn_answer_d"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text="D. Đáp án"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:background="@drawable/btn_hex_normal"
+                android:stateListAnimator="@null"
+                android:layout_marginStart="6dp"/>
+        </LinearLayout>
+
     </LinearLayout>
 
-    <!-- Đường kẻ ngang -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#2A2A5A"
-        android:layout_marginBottom="16dp"/>
+    <!-- ── Thanh mốc tiền (cột phải) ── -->
+    <!--
+        ScrollView để cuộn nếu màn hình nhỏ.
+        ll_money_ladder được populate bằng code trong GameActivity.
+    -->
+    <ScrollView
+        android:id="@+id/sv_money_ladder"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="#0D0025"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:scrollbars="none">
 
-    <!-- ── Khoảng trống đẩy câu hỏi xuống giữa ── -->
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
+        <LinearLayout
+            android:id="@+id/ll_money_ladder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
 
-    <!-- ── Câu hỏi ── -->
-    <TextView
-        android:id="@+id/tv_question"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Nội dung câu hỏi sẽ hiện ở đây?"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:lineSpacingMultiplier="1.3"
-        android:padding="16dp"
-        android:background="@drawable/bg_question"
-        android:layout_marginBottom="8dp"/>
-
-    <!-- ── Khoảng trống ── -->
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
-
-    <!-- ── 4 Nút đáp án ── -->
-
-    <!-- Hàng A + B -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginBottom="10dp">
-
-        <Button
-            android:id="@+id/btn_answer_a"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_weight="1"
-            android:text="A. Đáp án"
-            android:textColor="#FFFFFF"
-            android:textSize="13sp"
-            android:background="@drawable/btn_hex_normal"
-            android:stateListAnimator="@null"
-            android:layout_marginEnd="6dp"/>
-
-        <Button
-            android:id="@+id/btn_answer_b"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_weight="1"
-            android:text="B. Đáp án"
-            android:textColor="#FFFFFF"
-            android:textSize="13sp"
-            android:background="@drawable/btn_hex_normal"
-            android:stateListAnimator="@null"
-            android:layout_marginStart="6dp"/>
-    </LinearLayout>
-
-    <!-- Hàng C + D -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginBottom="24dp">
-
-        <Button
-            android:id="@+id/btn_answer_c"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_weight="1"
-            android:text="C. Đáp án"
-            android:textColor="#FFFFFF"
-            android:textSize="13sp"
-            android:background="@drawable/btn_hex_normal"
-            android:stateListAnimator="@null"
-            android:layout_marginEnd="6dp"/>
-
-        <Button
-            android:id="@+id/btn_answer_d"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_weight="1"
-            android:text="D. Đáp án"
-            android:textColor="#FFFFFF"
-            android:textSize="13sp"
-            android:background="@drawable/btn_hex_normal"
-            android:stateListAnimator="@null"
-            android:layout_marginStart="6dp"/>
-    </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>
