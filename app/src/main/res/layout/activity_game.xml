@@ -51,7 +51,58 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#2A2A5A"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="8dp"/>
+
+        <!--
+            Hàng 3 nút quyền trợ giúp.
+            Mỗi nút chiếm weight=1 → chia đều chiều rộng.
+            Disable + đổi drawable sau khi đã dùng.
+        -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="8dp">
+
+            <Button
+                android:id="@+id/btn_lifeline_5050"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:text="50 : 50"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:background="@drawable/btn_lifeline_normal"
+                android:stateListAnimator="@null"
+                android:layout_marginEnd="4dp"/>
+
+            <Button
+                android:id="@+id/btn_lifeline_phone"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:text="Gọi điện"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:background="@drawable/btn_lifeline_normal"
+                android:stateListAnimator="@null"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"/>
+
+            <Button
+                android:id="@+id/btn_lifeline_audience"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:text="Khán giả"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:background="@drawable/btn_lifeline_normal"
+                android:stateListAnimator="@null"
+                android:layout_marginStart="4dp"/>
+
+        </LinearLayout>
 
         <!-- Khoảng trống đẩy câu hỏi xuống giữa -->
         <Space

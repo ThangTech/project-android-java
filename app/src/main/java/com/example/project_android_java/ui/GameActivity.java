@@ -1,11 +1,15 @@
 package com.example.project_android_java.ui;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,7 +19,10 @@ import com.example.project_android_java.manager.GameManager;
 import com.example.project_android_java.manager.QuestionManager;
 import com.example.project_android_java.model.Question;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * GAME ACTIVITY - Màn hình chơi game chính.
@@ -25,6 +32,9 @@ import java.util.List;
  *  - ViewPropertyAnimator: animate View properties mượt mà
  *  - buildMoneyLadder(): tạo View động bằng code (không dùng XML cứng)
  *  - Handler.postDelayed(): delay action sau animation
+ *  - AlertDialog.Builder: dựng dialog bằng code, setView() cho layout tuỳ chỉnh
+ *  - ProgressBar (horizontal): hiển thị tỉ lệ % trong dialog khán giả
+ *  - View.INVISIBLE vs View.GONE: INVISIBLE giữ nguyên vị trí, GONE thu hồi space
  */
 public class GameActivity extends AppCompatActivity {
 
@@ -54,8 +64,22 @@ public class GameActivity extends AppCompatActivity {
     private Button[] answerButtons;
     private TextView[] ladderViews;   // 15 ô trong thanh mốc tiền
 
+    // ── Lifeline buttons ──────────────────────────────────────────────────────
+    private Button btnLifeline5050;
+    private Button btnLifelonePhone;
+    private Button btnLifeloneAudience;
+
     // ── Game State ────────────────────────────────────────────────────────────
     private GameManager gameManager;
+
+    /**
+     * Theo dõi nút nào đang bị ẩn do 50:50.
+     * Reset về false khi chuyển sang câu mới.
+     *
+     * 📚 View.INVISIBLE: nút ẩn nhưng vẫn giữ chỗ trong layout
+     *    (tránh layout nhảy so với View.GONE xoá hẳn space)
+     */
+    private boolean[] hiddenByFiftyFifty = new boolean[4];
 
     private static final String[] OPTION_LABELS = {"A. ", "B. ", "C. ", "D. "};
 
@@ -88,6 +112,14 @@ public class GameActivity extends AppCompatActivity {
             final int index = i;
             answerButtons[i].setOnClickListener(v -> onAnswerSelected(index));
         }
+
+        btnLifeline5050       = findViewById(R.id.btn_lifeline_5050);
+        btnLifelonePhone      = findViewById(R.id.btn_lifeline_phone);
+        btnLifeloneAudience   = findViewById(R.id.btn_lifeline_audience);
+
+        btnLifeline5050.setOnClickListener(v -> onLifeline5050());
+        btnLifelonePhone.setOnClickListener(v -> onLifelonePhone());
+        btnLifeloneAudience.setOnClickListener(v -> onLifeloneAudience());
     }
 
     private void initGame() {
@@ -102,9 +134,6 @@ public class GameActivity extends AppCompatActivity {
     /**
      * Tạo 15 ô mốc tiền trong panel bên phải bằng code.
      * Hiển thị từ câu 15 (trên cùng) → câu 1 (dưới cùng) như game thật.
-     *
-     * 📚 Tạo View bằng code: new TextView(this), addView()
-     *    Thay vì khai báo cứng 15 item trong XML (dài và khó maintain).
      */
     private void buildMoneyLadder() {
         LinearLayout container = findViewById(R.id.ll_money_ladder);
@@ -124,7 +153,6 @@ public class GameActivity extends AppCompatActivity {
             tv.setTextSize(10.5f);
             tv.setGravity(Gravity.CENTER);
 
-            // ★ cho mốc an toàn, số thường cho câu bình thường
             String label = gameManager.isSafeCheckpoint(i)
                     ? "★" + (i + 1)
                     : String.valueOf(i + 1);
@@ -139,11 +167,6 @@ public class GameActivity extends AppCompatActivity {
 
     /**
      * Cập nhật màu sắc các ô mốc tiền theo câu hiện tại.
-     *
-     * 3 trạng thái:
-     *  - Câu đang chơi   → vàng (nổi bật)
-     *  - Mốc an toàn     → xanh lá
-     *  - Câu thường      → tím tối (đã qua thì mờ hơn)
      */
     private void updateLadder() {
         int current = gameManager.getCurrentIndex();
@@ -153,11 +176,9 @@ public class GameActivity extends AppCompatActivity {
                 ladderViews[i].setTextColor(Color.BLACK);
             } else if (gameManager.isSafeCheckpoint(i)) {
                 ladderViews[i].setBackgroundResource(R.drawable.bg_ladder_safe);
-                // Đã qua mốc an toàn → màu nhạt hơn
                 ladderViews[i].setTextColor(i < current ? 0xFFAED581 : 0xFF4CAF50);
             } else {
                 ladderViews[i].setBackgroundResource(R.drawable.bg_ladder_normal);
-                // Đã qua → mờ, chưa đến → trắng
                 ladderViews[i].setTextColor(i < current ? 0xFF555577 : Color.WHITE);
             }
         }
@@ -177,13 +198,228 @@ public class GameActivity extends AppCompatActivity {
         for (int i = 0; i < answerButtons.length; i++) {
             answerButtons[i].setText(OPTION_LABELS[i] + options[i]);
             answerButtons[i].setEnabled(true);
+            answerButtons[i].setVisibility(View.VISIBLE);   // khôi phục nút 50:50 đã ẩn
             answerButtons[i].setBackgroundResource(R.drawable.btn_hex_normal);
-            // Reset scale phòng khi còn dư từ animation trước
             answerButtons[i].setScaleX(1f);
             answerButtons[i].setScaleY(1f);
         }
 
+        // Reset trạng thái ẩn của 50:50 cho câu mới
+        hiddenByFiftyFifty = new boolean[4];
+
         updateLadder();
+        updateLifelinesUI();
+    }
+
+    // ── Quyền trợ giúp ───────────────────────────────────────────────────────
+
+    /**
+     * Cập nhật trạng thái 3 nút lifeline: đã dùng → disable + đổi màu xám.
+     * Gọi sau mỗi lần dùng lifeline và sau mỗi lần chuyển câu.
+     */
+    private void updateLifelinesUI() {
+        applyLifelineState(btnLifeline5050,     gameManager.isUsed5050());
+        applyLifelineState(btnLifelonePhone,    gameManager.isUsedPhone());
+        applyLifelineState(btnLifeloneAudience, gameManager.isUsedAudience());
+    }
+
+    private void applyLifelineState(Button btn, boolean used) {
+        btn.setEnabled(!used);
+        btn.setBackgroundResource(used ? R.drawable.btn_lifeline_used : R.drawable.btn_lifeline_normal);
+        btn.setTextColor(used ? 0xFF444466 : Color.WHITE);
+    }
+
+    // ── 50:50 ─────────────────────────────────────────────────────────────────
+
+    /**
+     * Loại bỏ 2 đáp án sai ngẫu nhiên bằng cách đặt INVISIBLE.
+     *
+     * 📚 Collections.shuffle() trộn list index → chọn 2 phần tử đầu tiên
+     *    là cách lấy ngẫu nhiên không trùng lặp ngắn gọn nhất.
+     */
+    private void onLifeline5050() {
+        gameManager.use5050();
+        applyLifelineState(btnLifeline5050, true);
+
+        int correct = gameManager.getCorrectIndex();
+
+        // Thu thập index các đáp án SAI
+        List<Integer> wrongs = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            if (i != correct) wrongs.add(i);
+        }
+
+        // Trộn và ẩn 2 đáp án đầu tiên
+        Collections.shuffle(wrongs);
+        for (int k = 0; k < 2; k++) {
+            int idx = wrongs.get(k);
+            hiddenByFiftyFifty[idx] = true;
+            answerButtons[idx].setVisibility(View.INVISIBLE);
+        }
+    }
+
+    // ── Gọi điện ──────────────────────────────────────────────────────────────
+
+    /**
+     * Gợi ý đáp án từ "người thân".
+     *
+     * Xác suất:
+     *  - 80%: chỉ đúng đáp án, nói "khoảng 80% chắc chắn"
+     *  - 20%: chỉ sai (trong số đáp án còn hiển thị), nói "không chắc lắm"
+     *
+     * 📚 AlertDialog.Builder: chuỗi builder pattern để dựng dialog.
+     *    setMessage(): hiện text thuần.
+     *    setPositiveButton(text, null): nút đóng, listener null = chỉ dismiss.
+     */
+    private void onLifelonePhone() {
+        gameManager.usePhone();
+        applyLifelineState(btnLifelonePhone, true);
+
+        int correct = gameManager.getCorrectIndex();
+        Random rnd  = new Random();
+
+        int suggestedIdx;
+        String note;
+
+        if (rnd.nextInt(100) < 80) {
+            suggestedIdx = correct;
+            note = "Mình khoảng 80% chắc chắn đó!";
+        } else {
+            // Chọn ngẫu nhiên trong số đáp án SAI còn hiển thị
+            List<Integer> visibleWrongs = new ArrayList<>();
+            for (int i = 0; i < 4; i++) {
+                if (i != correct && !hiddenByFiftyFifty[i]) visibleWrongs.add(i);
+            }
+            suggestedIdx = visibleWrongs.get(rnd.nextInt(visibleWrongs.size()));
+            note = "Nhưng mình không chắc lắm...";
+        }
+
+        String[] labels = {"A", "B", "C", "D"};
+        String msg = "\"Câu này mình nghĩ là đáp án "
+                + labels[suggestedIdx] + ".\n" + note + "\"";
+
+        new AlertDialog.Builder(this)
+                .setTitle("Gọi điện cho người thân")
+                .setMessage(msg)
+                .setPositiveButton("Cảm ơn!", null)
+                .show();
+    }
+
+    // ── Hỏi khán giả ─────────────────────────────────────────────────────────
+
+    /**
+     * Hiển thị % bình chọn của khán giả qua AlertDialog tuỳ chỉnh.
+     * Đáp án đúng luôn nhận % cao nhất (50–70% nếu 4 options, 58–80% nếu còn 2 sau 50:50).
+     *
+     * 📚 AlertDialog.setView(): gắn layout tuỳ chỉnh thay cho setMessage().
+     *    ProgressBar horizontal: dùng style progressBarStyleHorizontal.
+     *    setProgressTintList(): đổi màu thanh tiến trình bằng ColorStateList.
+     */
+    private void onLifeloneAudience() {
+        gameManager.useAudience();
+        applyLifelineState(btnLifeloneAudience, true);
+
+        int correct   = gameManager.getCorrectIndex();
+        int[] percents = generateAudiencePercents(correct);
+
+        showAudienceDialog(percents);
+    }
+
+    /**
+     * Sinh % ngẫu nhiên cho 4 đáp án, đảm bảo tổng = 100.
+     *
+     * Nếu 50:50 đã dùng: chỉ chia giữa 2 đáp án còn hiển thị.
+     * Nếu chưa dùng 50:50: chia giữa cả 4, đáp án đúng chiếm nhiều nhất.
+     */
+    private int[] generateAudiencePercents(int correct) {
+        Random rnd    = new Random();
+        int[]  result = new int[4];
+
+        if (gameManager.isUsed5050()) {
+            // Chỉ 2 đáp án còn hiển thị
+            int correctPct = 58 + rnd.nextInt(23);   // 58–80%
+            for (int i = 0; i < 4; i++) {
+                if (hiddenByFiftyFifty[i]) continue;
+                result[i] = (i == correct) ? correctPct : (100 - correctPct);
+            }
+        } else {
+            // 4 đáp án: đúng chiếm 50–70%, 3 sai chia phần còn lại
+            int correctPct = 50 + rnd.nextInt(21);   // 50–70%
+            int remaining  = 100 - correctPct;
+            // Chia remaining thành 3 phần ≥ 1
+            int a = 1 + rnd.nextInt(remaining - 2);          // [1, remaining-2]
+            int b = 1 + rnd.nextInt(remaining - a - 1);      // [1, remaining-a-1]
+            int c = remaining - a - b;
+            int[] wrongPct = {a, b, c};
+            int j = 0;
+            for (int i = 0; i < 4; i++) {
+                result[i] = (i == correct) ? correctPct : wrongPct[j++];
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Dựng dialog "Hỏi khán giả" hoàn toàn bằng code.
+     * Mỗi hàng: [nhãn A/B/C/D] [ProgressBar] [% text].
+     * Bỏ qua các đáp án đã bị ẩn bởi 50:50.
+     */
+    private void showAudienceDialog(int[] percents) {
+        String[] labels = {"A", "B", "C", "D"};
+
+        LinearLayout container = new LinearLayout(this);
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setPadding(dp(24), dp(16), dp(24), dp(8));
+
+        for (int i = 0; i < 4; i++) {
+            if (hiddenByFiftyFifty[i]) continue;
+
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            rowParams.setMargins(0, dp(6), 0, dp(6));
+
+            // Nhãn A / B / C / D
+            TextView tvLabel = new TextView(this);
+            tvLabel.setText(labels[i]);
+            tvLabel.setTextColor(0xFFFFD700);
+            tvLabel.setTextSize(14);
+            tvLabel.setTypeface(null, android.graphics.Typeface.BOLD);
+            tvLabel.setMinWidth(dp(20));
+
+            // Thanh ProgressBar
+            ProgressBar pb = new ProgressBar(
+                    this, null, android.R.attr.progressBarStyleHorizontal);
+            pb.setMax(100);
+            pb.setProgress(percents[i]);
+            pb.setProgressTintList(ColorStateList.valueOf(0xFF4A90D9));
+            LinearLayout.LayoutParams pbParams = new LinearLayout.LayoutParams(
+                    0, dp(14));
+            pbParams.weight = 1;
+            pbParams.setMargins(dp(8), 0, dp(8), 0);
+
+            // Số phần trăm
+            TextView tvPct = new TextView(this);
+            tvPct.setText(percents[i] + "%");
+            tvPct.setTextColor(Color.WHITE);
+            tvPct.setTextSize(13);
+            tvPct.setMinWidth(dp(36));
+            tvPct.setGravity(Gravity.END);
+
+            row.addView(tvLabel);
+            row.addView(pb, pbParams);
+            row.addView(tvPct);
+            container.addView(row, rowParams);
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Hỏi ý kiến khán giả")
+                .setView(container)
+                .setPositiveButton("Cảm ơn!", null)
+                .show();
     }
 
     // ── Xử lý chọn đáp án ────────────────────────────────────────────────────
@@ -215,7 +451,6 @@ public class GameActivity extends AppCompatActivity {
     private void onWrongAnswer(int selectedIndex) {
         animateButton(answerButtons[selectedIndex], false);
 
-        // Sau 300ms mới hiện đáp án đúng để người chơi thấy rõ nút sai trước
         int correctIdx = gameManager.getCorrectIndex();
         new android.os.Handler().postDelayed(() ->
                 answerButtons[correctIdx].setBackgroundResource(R.drawable.btn_hex_correct),
@@ -237,7 +472,6 @@ public class GameActivity extends AppCompatActivity {
      * 📚 ViewPropertyAnimator (btn.animate()):
      *  - API fluent, dễ đọc hơn ObjectAnimator
      *  - withEndAction(): callback sau khi animation kết thúc
-     *  - Chaining: .scaleX().scaleY().setDuration() trên cùng 1 dòng
      */
     private void animateButton(Button btn, boolean correct) {
         int drawableRes = correct ? R.drawable.btn_hex_correct : R.drawable.btn_hex_wrong;
@@ -269,8 +503,23 @@ public class GameActivity extends AppCompatActivity {
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
+    /**
+     * Disable tất cả nút đáp án VÀ lifeline khi đang xử lý animation.
+     * Khi enable lại (qua showQuestion), lifeline được khôi phục qua updateLifelinesUI().
+     */
     private void setAllButtonsEnabled(boolean enabled) {
         for (Button btn : answerButtons) btn.setEnabled(enabled);
+        if (!enabled) {
+            btnLifeline5050.setEnabled(false);
+            btnLifelonePhone.setEnabled(false);
+            btnLifeloneAudience.setEnabled(false);
+        }
+        // Khi enabled=true, showQuestion() sẽ gọi updateLifelinesUI() để khôi phục
+    }
+
+    /** Chuyển dp → px theo mật độ màn hình hiện tại. */
+    private int dp(int dp) {
+        return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 
     public static String formatMoney(long amount) {

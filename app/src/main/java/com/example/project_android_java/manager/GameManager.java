@@ -87,4 +87,19 @@ public class GameManager {
     public boolean isSafeCheckpoint(int index) {
         return index == 4 || index == 9;
     }
+
+    // ── Quyền trợ giúp ───────────────────────────────────────────────────────
+    // Mỗi lifeline chỉ dùng được 1 lần trong cả ván chơi.
+
+    private boolean used5050     = false;
+    private boolean usedPhone    = false;
+    private boolean usedAudience = false;
+
+    public boolean isUsed5050()     { return used5050; }
+    public boolean isUsedPhone()    { return usedPhone; }
+    public boolean isUsedAudience() { return usedAudience; }
+
+    public void use5050()     { used5050     = true; }
+    public void usePhone()    { usedPhone    = true; }
+    public void useAudience() { usedAudience = true; }
 }
