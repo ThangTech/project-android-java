@@ -1,27 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Lưu tại: res/layout/activity_main.xml — thay toàn bộ nội dung cũ -->
-<!--
-    LinearLayout: xếp các View theo chiều dọc (vertical) hoặc ngang (horizontal)
-    - orientation="vertical" → xếp từ trên xuống dưới
-    - gravity="center" → căn giữa tất cả con
-    - layout_weight → chia tỉ lệ không gian
--->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:background="#0A0520"
+    android:background="@drawable/background"
     android:padding="24dp">
 
-    <!-- Đẩy logo xuống giữa màn hình một chút -->
     <Space
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1.5"/>
 
-    <!-- ── Logo ── -->
     <ImageView
         android:id="@+id/iv_logo"
         android:layout_width="240dp"
@@ -29,81 +20,68 @@
         android:src="@drawable/logo"
         android:scaleType="fitCenter"/>
 
-    <!-- Fallback nếu chưa có ảnh logo -->
-    <!--
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="💰 AI LÀ TRIỆU PHÚ"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="#FFD700"/>
-    -->
-
     <Space
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
 
-    <!-- ── Nút BẮT ĐẦU ── -->
+    <!-- Nút Chơi Đơn -->
     <Button
         android:id="@+id/btn_play"
         android:layout_width="260dp"
-        android:layout_height="54dp"
-        android:text="◆  BẮT ĐẦU  ◆"
-        android:textSize="16sp"
+        android:layout_height="60dp"
+        android:text="👤 CHƠI NGAY"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="#FFD700"
-        android:letterSpacing="0.08"
-        android:background="@drawable/btn_millionaire"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/btn_play_main"
         android:stateListAnimator="@null"/>
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="14dp"/>
+        android:layout_height="32dp"/>
 
-    <!-- ── Nút HƯỚNG DẪN ── -->
-    <Button
-        android:id="@+id/btn_instructions"
-        android:layout_width="260dp"
-        android:layout_height="54dp"
-        android:text="◆  HƯỚNG DẪN  ◆"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="#FFD700"
-        android:letterSpacing="0.08"
-        android:background="@drawable/btn_millionaire"
-        android:stateListAnimator="@null"/>
+    <!-- Hàng 3 nút chức năng -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="14dp"/>
+        <ImageButton
+            android:id="@+id/btn_info"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="24dp"
+            android:src="@android:drawable/ic_menu_info_details"
+            android:background="@drawable/btn_round_orange"
+            android:contentDescription="Thông tin"
+            android:tint="#FFFFFF"/>
 
-    <!-- ── Nút THOÁT ── -->
-    <Button
-        android:id="@+id/btn_exit"
-        android:layout_width="260dp"
-        android:layout_height="54dp"
-        android:text="◆  THOÁT  ◆"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="#FF6B6B"
-        android:letterSpacing="0.08"
-        android:background="@drawable/btn_millionaire"
-        android:stateListAnimator="@null"/>
+        <ImageButton
+            android:id="@+id/btn_rank"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:src="@android:drawable/btn_star_big_on"
+            android:background="@drawable/btn_round_orange"
+            android:contentDescription="Xếp hạng"
+            android:tint="#FFFFFF"/>
+
+        <ImageButton
+            android:id="@+id/btn_settings"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="24dp"
+            android:src="@android:drawable/ic_menu_preferences"
+            android:background="@drawable/btn_round_purple"
+            android:contentDescription="Cài đặt"
+            android:tint="#FFFFFF"/>
+
+    </LinearLayout>
 
     <Space
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
-
-    <!-- ── Version ── -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="v1.0 — Android Edition"
-        android:textSize="11sp"
-        android:textColor="#444466"
-        android:layout_marginBottom="8dp"/>
 
 </LinearLayout>

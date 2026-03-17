@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Màn hình game gồm 2 cột:
-    - Trái (weight=3): header + câu hỏi + 4 nút đáp án
-    - Phải (weight=1): thanh mốc tiền 15 mức
--->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:background="#0A0520">
+    android:background="@drawable/background_2">
 
-    <!-- ── Khu vực chơi chính (cột trái) ── -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -19,7 +13,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header: số câu + tiền hiện tại -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,18 +39,12 @@
                 android:textStyle="bold"/>
         </LinearLayout>
 
-        <!-- Đường kẻ ngang -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#2A2A5A"
             android:layout_marginBottom="8dp"/>
 
-        <!--
-            Hàng 3 nút quyền trợ giúp.
-            Mỗi nút chiếm weight=1 → chia đều chiều rộng.
-            Disable + đổi drawable sau khi đã dùng.
-        -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -104,13 +91,11 @@
 
         </LinearLayout>
 
-        <!-- Khoảng trống đẩy câu hỏi xuống giữa -->
         <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
-        <!-- Câu hỏi -->
         <TextView
             android:id="@+id/tv_question"
             android:layout_width="match_parent"
@@ -121,17 +106,15 @@
             android:textStyle="bold"
             android:gravity="center"
             android:lineSpacingMultiplier="1.3"
-            android:padding="16dp"
+            android:padding="20dp"
             android:background="@drawable/bg_question"
             android:layout_marginBottom="8dp"/>
 
-        <!-- Khoảng trống -->
         <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
-        <!-- Hàng A + B -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -147,7 +130,7 @@
                 android:text="A. Đáp án"
                 android:textColor="#FFFFFF"
                 android:textSize="13sp"
-                android:background="@drawable/btn_hex_normal"
+                android:background="@drawable/btn_hex_blue"
                 android:stateListAnimator="@null"
                 android:layout_marginEnd="6dp"/>
 
@@ -159,12 +142,11 @@
                 android:text="B. Đáp án"
                 android:textColor="#FFFFFF"
                 android:textSize="13sp"
-                android:background="@drawable/btn_hex_normal"
+                android:background="@drawable/btn_hex_blue"
                 android:stateListAnimator="@null"
                 android:layout_marginStart="6dp"/>
         </LinearLayout>
 
-        <!-- Hàng C + D -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -180,7 +162,7 @@
                 android:text="C. Đáp án"
                 android:textColor="#FFFFFF"
                 android:textSize="13sp"
-                android:background="@drawable/btn_hex_normal"
+                android:background="@drawable/btn_hex_blue"
                 android:stateListAnimator="@null"
                 android:layout_marginEnd="6dp"/>
 
@@ -192,18 +174,13 @@
                 android:text="D. Đáp án"
                 android:textColor="#FFFFFF"
                 android:textSize="13sp"
-                android:background="@drawable/btn_hex_normal"
+                android:background="@drawable/btn_hex_blue"
                 android:stateListAnimator="@null"
                 android:layout_marginStart="6dp"/>
         </LinearLayout>
 
     </LinearLayout>
 
-    <!-- ── Thanh mốc tiền (cột phải) ── -->
-    <!--
-        ScrollView để cuộn nếu màn hình nhỏ.
-        ll_money_ladder được populate bằng code trong GameActivity.
-    -->
     <ScrollView
         android:id="@+id/sv_money_ladder"
         android:layout_width="0dp"
