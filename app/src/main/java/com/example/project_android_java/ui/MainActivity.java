@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     private void showInfoDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Thông tin trò chơi")
-                .setMessage("Trò chơi Ai Là Triệu Phú - Phiên bản Android Java.\nPhát triển bởi Thắng")
+                .setMessage("Trò chơi Ai Là Triệu Phú - Phiên bản Android Java.\nPhát triển bởi Nguyễn Văn Thắng")
                 .setPositiveButton("Đóng", null)
                 .show();
     }
