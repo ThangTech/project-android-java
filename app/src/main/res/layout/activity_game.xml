@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_2">
@@ -14,31 +13,63 @@
         android:padding="16dp"
         android:visibility="invisible">
 
-        <!-- Header: Timer & Money -->
+        <!-- Top Header: Avatar, Timer, Coins -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="16dp">
 
-            <ProgressBar
-                android:id="@+id/pb_timer"
-                style="?android:attr/progressBarStyleHorizontal"
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentStart="true"
+                android:src="@android:drawable/ic_menu_myplaces"
+                android:background="@drawable/btn_round_purple"
+                android:padding="8dp" />
+
+            <FrameLayout
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:layout_centerHorizontal="true"
-                android:max="30"
-                android:progress="30"
-                android:progressDrawable="@android:drawable/progress_horizontal" />
+                android:layout_centerHorizontal="true">
+                <ProgressBar
+                    android:id="@+id/pb_timer"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:max="30"
+                    android:progress="30"
+                    android:progressDrawable="@android:drawable/progress_horizontal" />
+                <TextView
+                    android:id="@+id/tv_timer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="30"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </FrameLayout>
 
-            <TextView
-                android:id="@+id/tv_timer"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="30"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@android:drawable/btn_star_big_on"
+                    android:tint="#FFD700" />
+                <TextView
+                    android:id="@+id/tv_coin_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" 0"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </RelativeLayout>
 
         <!-- Trợ giúp -->
@@ -46,38 +77,55 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:layout_marginBottom="20dp">
-            <!-- Thêm các nút trợ giúp icon tròn ở đây -->
-            <ImageButton android:id="@+id/btn_help_5050" android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/tg_5050" android:background="?attr/selectableItemBackgroundBorderless" android:layout_margin="8dp" android:scaleType="fitCenter"/>
-            <ImageButton android:id="@+id/btn_help_audience" android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/tg_kg" android:background="?attr/selectableItemBackgroundBorderless" android:layout_margin="8dp" android:scaleType="fitCenter"/>
-            <ImageButton android:id="@+id/btn_help_phone" android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/tg_call" android:background="?attr/selectableItemBackgroundBorderless" android:layout_margin="8dp" android:scaleType="fitCenter"/>
+            android:layout_marginBottom="16dp">
+            <ImageButton android:id="@+id/btn_help_5050" android:layout_width="56dp" android:layout_height="56dp" android:src="@drawable/tg_5050" android:background="?attr/selectableItemBackgroundBorderless" android:layout_margin="6dp" android:scaleType="fitCenter"/>
+            <ImageButton android:id="@+id/btn_help_audience" android:layout_width="56dp" android:layout_height="56dp" android:src="@drawable/tg_kg" android:background="?attr/selectableItemBackgroundBorderless" android:layout_margin="6dp" android:scaleType="fitCenter"/>
+            <ImageButton android:id="@+id/btn_help_phone" android:layout_width="56dp" android:layout_height="56dp" android:src="@drawable/tg_call" android:background="?attr/selectableItemBackgroundBorderless" android:layout_margin="6dp" android:scaleType="fitCenter"/>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_question"
+        <!-- Câu hỏi -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_question"
-            android:gravity="center"
-            android:padding="24dp"
-            android:text="Câu hỏi sẽ hiển thị ở đây?"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:layout_marginBottom="24dp">
+            <TextView
+                android:id="@+id/tv_question"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="140dp"
+                android:background="@drawable/bg_question_clear"
+                android:gravity="center"
+                android:padding="30dp"
+                android:text="Nội dung câu hỏi?"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/tv_question_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|center_horizontal"
+                android:background="#FFFFFF"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:text="Câu: 1"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </FrameLayout>
 
         <Space android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"/>
 
         <!-- 4 Đáp án -->
-        <GridLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:columnCount="1"
-            android:rowCount="4">
-            <Button android:id="@+id/btn_answer_a" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginBottom="8dp" android:background="@drawable/btn_hex_blue" android:text="A. Đáp án 1" android:textColor="#FFFFFF"/>
-            <Button android:id="@+id/btn_answer_b" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginBottom="8dp" android:background="@drawable/btn_hex_blue" android:text="B. Đáp án 2" android:textColor="#FFFFFF"/>
-            <Button android:id="@+id/btn_answer_c" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginBottom="8dp" android:background="@drawable/btn_hex_blue" android:text="C. Đáp án 3" android:textColor="#FFFFFF"/>
-            <Button android:id="@+id/btn_answer_d" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginBottom="8dp" android:background="@drawable/btn_hex_blue" android:text="D. Đáp án 4" android:textColor="#FFFFFF"/>
-        </GridLayout>
+            android:orientation="vertical">
+            <Button android:id="@+id/btn_answer_a" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginBottom="12dp" android:background="@drawable/bg_answer_clear" android:text="A. Đáp án 1" android:textColor="#FFFFFF" android:textAllCaps="false" />
+            <Button android:id="@+id/btn_answer_b" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginBottom="12dp" android:background="@drawable/bg_answer_clear" android:text="B. Đáp án 2" android:textColor="#FFFFFF" android:textAllCaps="false" />
+            <Button android:id="@+id/btn_answer_c" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginBottom="12dp" android:background="@drawable/bg_answer_clear" android:text="C. Đáp án 3" android:textColor="#FFFFFF" android:textAllCaps="false" />
+            <Button android:id="@+id/btn_answer_d" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginBottom="12dp" android:background="@drawable/bg_answer_clear" android:text="D. Đáp án 4" android:textColor="#FFFFFF" android:textAllCaps="false" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- LỚP 2: DANH SÁCH MỐC TIỀN THƯỞNG (Nằm trên) -->
@@ -92,19 +140,11 @@
         android:padding="20dp"
         android:gravity="center_horizontal">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="MỐC TIỀN THƯỞNG"
-            android:textColor="#FFD700"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="20dp"/>
-
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:scrollbars="none">
             <LinearLayout
                 android:id="@+id/ll_money_container"
                 android:layout_width="match_parent"
@@ -115,12 +155,13 @@
 
         <Button
             android:id="@+id/btn_hide_ladder"
-            android:layout_width="200dp"
+            android:layout_width="140dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:background="@drawable/btn_millionaire"
-            android:text="ẨN"
-            android:textColor="#FFFFFF" />
+            android:text="Hide"
+            android:textColor="#FFFFFF"
+            android:textAllCaps="false" />
     </LinearLayout>
 
 </FrameLayout>

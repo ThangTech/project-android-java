@@ -1,18 +1,16 @@
 package com.example.project_android_java.ui;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.media.MediaPlayer;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,8 +20,6 @@ import com.example.project_android_java.R;
 import com.example.project_android_java.manager.GameManager;
 import com.example.project_android_java.manager.QuestionManager;
 import com.example.project_android_java.model.Question;
-
-import java.util.List;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -53,9 +49,9 @@ public class GameActivity extends AppCompatActivity {
         initGame();
         buildMoneyLadder();
         
-        // Mặc định ban đầu: Hiện bảng tiền thưởng, ẩn câu hỏi
         layoutMoneyLadder.setVisibility(View.VISIBLE);
         layoutQuestionMain.setVisibility(View.INVISIBLE);
+        btnHideLadder.setVisibility(View.VISIBLE); // Hiện nút Ẩn ở lần đầu
     }
 
     private void initViews() {
@@ -92,19 +88,22 @@ public class GameActivity extends AppCompatActivity {
         for (int i = 14; i >= 0; i--) {
             TextView tv = new TextView(this);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, dp(45));
-            lp.setMargins(0, dp(4), 0, dp(4));
+                    LinearLayout.LayoutParams.MATCH_PARENT, dp(40));
+            lp.setMargins(dp(30), dp(4), dp(30), dp(4));
             tv.setLayoutParams(lp);
             tv.setGravity(Gravity.CENTER);
-            tv.setTextSize(16);
+            tv.setTextSize(17);
             tv.setText(formatMoney(MONEY_LADDER[i]));
             
-            // Highlight các mốc quan trọng 5, 10, 15
+            // Thiết lập mặc định dựa trên mốc an toàn
             if (i == 4 || i == 9 || i == 14) {
                 tv.setBackgroundResource(R.drawable.bg_ladder_safe);
                 tv.setTextColor(Color.YELLOW);
+                tv.setTypeface(null, Typeface.BOLD);
             } else {
+                tv.setBackgroundResource(0);
                 tv.setTextColor(Color.WHITE);
+                tv.setTypeface(null, Typeface.NORMAL);
             }
             
             ladderViews[i] = tv;
@@ -116,26 +115,33 @@ public class GameActivity extends AppCompatActivity {
     private void updateLadderHighlight() {
         int current = gameManager.getCurrentIndex();
         for (int i = 0; i < 15; i++) {
+            ladderViews[i].clearAnimation();
             if (i == current) {
-                ladderViews[i].setScaleX(1.15f);
-                ladderViews[i].setScaleY(1.15f);
-                ladderViews[i].setTextColor(Color.CYAN); // Màu cho câu hiện tại
-                // Thêm animation nhấp nháy cho mốc hiện tại
-                Animation blink = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
-                blink.setDuration(500);
+                // HIGHLIGHT MỐC HIỆN TẠI (CAM)
+                ladderViews[i].setBackgroundResource(R.drawable.bg_ladder_current);
+                ladderViews[i].setTextColor(Color.WHITE);
+                ladderViews[i].setTypeface(null, Typeface.BOLD);
+                
+                // Hiệu ứng nhấp nháy
+                AlphaAnimation blink = new AlphaAnimation(0.4f, 1.0f);
+                blink.setDuration(400);
                 blink.setRepeatMode(Animation.REVERSE);
                 blink.setRepeatCount(Animation.INFINITE);
                 ladderViews[i].startAnimation(blink);
             } else {
-                ladderViews[i].setScaleX(1f);
-                ladderViews[i].setScaleY(1f);
-                ladderViews[i].clearAnimation();
-                if (i != 4 && i != 9 && i != 14) tvColor(ladderViews[i], Color.WHITE);
+                // Khôi phục mốc an toàn hoặc mốc thường
+                if (i == 4 || i == 9 || i == 14) {
+                    ladderViews[i].setBackgroundResource(R.drawable.bg_ladder_safe);
+                    ladderViews[i].setTextColor(Color.YELLOW);
+                    ladderViews[i].setTypeface(null, Typeface.BOLD);
+                } else {
+                    ladderViews[i].setBackgroundResource(0);
+                    ladderViews[i].setTextColor(Color.WHITE);
+                    ladderViews[i].setTypeface(null, Typeface.NORMAL);
+                }
             }
         }
     }
-    
-    private void tvColor(TextView tv, int color) { tv.setTextColor(color); }
 
     private void showReadyDialog() {
         new AlertDialog.Builder(this)
@@ -148,14 +154,14 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void startRealGame() {
-        // 1. Trượt màn hình mốc tiền sang phải
+        btnHideLadder.setVisibility(View.GONE); // Ẩn nút mãi mãi sau khi nhấn Sẵn sàng
+        
         layoutMoneyLadder.animate()
                 .translationX(layoutMoneyLadder.getWidth())
-                .setDuration(500)
+                .setDuration(600)
                 .withEndAction(() -> {
                     layoutMoneyLadder.setVisibility(View.GONE);
                     layoutQuestionMain.setVisibility(View.VISIBLE);
-                    // 2. Bắt đầu câu hỏi đầu tiên
                     showQuestion();
                 }).start();
     }
@@ -191,10 +197,8 @@ public class GameActivity extends AppCompatActivity {
 
         handler.postDelayed(() -> {
             if (gameManager.checkAnswer(selectedIndex)) {
-                // TRẢ LỜI ĐÚNG
                 onCorrect(selectedIndex);
             } else {
-                // TRẢ LỜI SAI
                 onWrong(selectedIndex);
             }
         }, 2000);
@@ -203,7 +207,6 @@ public class GameActivity extends AppCompatActivity {
     private void onCorrect(int selectedIndex) {
         blinkButton(answerButtons[selectedIndex], R.drawable.btn_hex_green, () -> {
             gameManager.advance();
-            // HIỆN LẠI BẢNG TIỀN TRƯỚC KHI QUA CÂU MỚI
             showMoneyLadderBriefly();
         });
     }
@@ -215,12 +218,12 @@ public class GameActivity extends AppCompatActivity {
         
         layoutMoneyLadder.animate()
                 .translationX(0)
-                .setDuration(500)
+                .setDuration(600)
                 .withEndAction(() -> {
                     handler.postDelayed(() -> {
                         layoutMoneyLadder.animate()
                                 .translationX(layoutMoneyLadder.getWidth())
-                                .setDuration(500)
+                                .setDuration(600)
                                 .withEndAction(() -> {
                                     layoutMoneyLadder.setVisibility(View.GONE);
                                     if (gameManager.getState() == GameManager.State.WON) {
@@ -229,7 +232,7 @@ public class GameActivity extends AppCompatActivity {
                                         showQuestion();
                                     }
                                 }).start();
-                    }, 2000); // Dừng lại 2 giây cho người chơi xem mốc tiền
+                    }, 2500);
                 }).start();
     }
 
