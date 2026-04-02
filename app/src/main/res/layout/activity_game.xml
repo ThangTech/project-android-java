@@ -1,202 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
     android:background="@drawable/background_2">
 
+    <!-- LỚP 1: GIAO DIỆN CÂU HỎI (Nằm dưới) -->
     <LinearLayout
-        android:layout_width="0dp"
+        android:id="@+id/layout_question_main"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="3"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:visibility="invisible">
 
-        <LinearLayout
+        <!-- Header: Timer & Money -->
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="20dp">
+
+            <ProgressBar
+                android:id="@+id/pb_timer"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_centerHorizontal="true"
+                android:max="30"
+                android:progress="30"
+                android:progressDrawable="@android:drawable/progress_horizontal" />
 
             <TextView
-                android:id="@+id/tv_question_number"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Câu 1 / 15"
-                android:textColor="#AAAACC"
-                android:textSize="14sp"/>
-
-            <TextView
-                android:id="@+id/tv_current_money"
+                android:id="@+id/tv_timer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="200.000 đ"
-                android:textColor="#FFD700"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
-        </LinearLayout>
+                android:layout_centerInParent="true"
+                android:text="30"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#2A2A5A"
-            android:layout_marginBottom="8dp"/>
-
+        <!-- Trợ giúp -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginBottom="8dp">
-
-            <Button
-                android:id="@+id/btn_lifeline_5050"
-                android:layout_width="0dp"
-                android:layout_height="38dp"
-                android:layout_weight="1"
-                android:text="50 : 50"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:background="@drawable/btn_lifeline_normal"
-                android:stateListAnimator="@null"
-                android:layout_marginEnd="4dp"/>
-
-            <Button
-                android:id="@+id/btn_lifeline_phone"
-                android:layout_width="0dp"
-                android:layout_height="38dp"
-                android:layout_weight="1"
-                android:text="Gọi điện"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:background="@drawable/btn_lifeline_normal"
-                android:stateListAnimator="@null"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"/>
-
-            <Button
-                android:id="@+id/btn_lifeline_audience"
-                android:layout_width="0dp"
-                android:layout_height="38dp"
-                android:layout_weight="1"
-                android:text="Khán giả"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:background="@drawable/btn_lifeline_normal"
-                android:stateListAnimator="@null"
-                android:layout_marginStart="4dp"/>
-
+            android:layout_marginBottom="20dp">
+            <!-- Thêm các nút trợ giúp icon tròn ở đây -->
+            <ImageButton android:id="@+id/btn_help_5050" android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/tg_5050" android:background="?attr/selectableItemBackgroundBorderless" android:layout_margin="8dp" android:scaleType="fitCenter"/>
+            <ImageButton android:id="@+id/btn_help_audience" android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/tg_kg" android:background="?attr/selectableItemBackgroundBorderless" android:layout_margin="8dp" android:scaleType="fitCenter"/>
+            <ImageButton android:id="@+id/btn_help_phone" android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/tg_call" android:background="?attr/selectableItemBackgroundBorderless" android:layout_margin="8dp" android:scaleType="fitCenter"/>
         </LinearLayout>
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
 
         <TextView
             android:id="@+id/tv_question"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Nội dung câu hỏi sẽ hiện ở đây?"
+            android:background="@drawable/bg_question"
+            android:gravity="center"
+            android:padding="24dp"
+            android:text="Câu hỏi sẽ hiển thị ở đây?"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:lineSpacingMultiplier="1.3"
-            android:padding="20dp"
-            android:background="@drawable/bg_question"
-            android:layout_marginBottom="8dp"/>
+            android:textStyle="bold" />
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
+        <Space android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"/>
 
-        <LinearLayout
+        <!-- 4 Đáp án -->
+        <GridLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="10dp">
-
-            <Button
-                android:id="@+id/btn_answer_a"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_weight="1"
-                android:text="A. Đáp án"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:background="@drawable/btn_hex_blue"
-                android:stateListAnimator="@null"
-                android:layout_marginEnd="6dp"/>
-
-            <Button
-                android:id="@+id/btn_answer_b"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_weight="1"
-                android:text="B. Đáp án"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:background="@drawable/btn_hex_blue"
-                android:stateListAnimator="@null"
-                android:layout_marginStart="6dp"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="24dp">
-
-            <Button
-                android:id="@+id/btn_answer_c"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_weight="1"
-                android:text="C. Đáp án"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:background="@drawable/btn_hex_blue"
-                android:stateListAnimator="@null"
-                android:layout_marginEnd="6dp"/>
-
-            <Button
-                android:id="@+id/btn_answer_d"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_weight="1"
-                android:text="D. Đáp án"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:background="@drawable/btn_hex_blue"
-                android:stateListAnimator="@null"
-                android:layout_marginStart="6dp"/>
-        </LinearLayout>
-
+            android:columnCount="1"
+            android:rowCount="4">
+            <Button android:id="@+id/btn_answer_a" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginBottom="8dp" android:background="@drawable/btn_hex_blue" android:text="A. Đáp án 1" android:textColor="#FFFFFF"/>
+            <Button android:id="@+id/btn_answer_b" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginBottom="8dp" android:background="@drawable/btn_hex_blue" android:text="B. Đáp án 2" android:textColor="#FFFFFF"/>
+            <Button android:id="@+id/btn_answer_c" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginBottom="8dp" android:background="@drawable/btn_hex_blue" android:text="C. Đáp án 3" android:textColor="#FFFFFF"/>
+            <Button android:id="@+id/btn_answer_d" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginBottom="8dp" android:background="@drawable/btn_hex_blue" android:text="D. Đáp án 4" android:textColor="#FFFFFF"/>
+        </GridLayout>
     </LinearLayout>
 
-    <ScrollView
-        android:id="@+id/sv_money_ladder"
-        android:layout_width="0dp"
+    <!-- LỚP 2: DANH SÁCH MỐC TIỀN THƯỞNG (Nằm trên) -->
+    <LinearLayout
+        android:id="@+id/layout_money_ladder"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:background="#0D0025"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:scrollbars="none">
+        android:background="#E60A0520"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:gravity="center_horizontal">
 
-        <LinearLayout
-            android:id="@+id/ll_money_ladder"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"/>
+            android:text="MỐC TIỀN THƯỞNG"
+            android:textColor="#FFD700"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp"/>
 
-    </ScrollView>
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <LinearLayout
+                android:id="@+id/ll_money_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"/>
+        </ScrollView>
 
-</LinearLayout>
+        <Button
+            android:id="@+id/btn_hide_ladder"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/btn_millionaire"
+            android:text="ẨN"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+
+</FrameLayout>
