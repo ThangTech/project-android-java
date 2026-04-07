@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#2D1B6B"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFD700"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="Gọi điện cho ai?"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        android:layout_marginBottom="20dp"/>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="2"
+        android:rowCount="2">
+
+        <!-- Cự Trọng Xoay -->
+        <LinearLayout
+            android:id="@+id/ll_expert_cu_trong_xoay"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp">
+            <ImageView
+                android:id="@+id/iv_cu_trong_xoay"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/cu_trong_xoay"
+                android:scaleType="centerCrop"
+                android:background="@drawable/avatar_cu_trong_xoay"
+                android:clipToOutline="true" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cự Trọng Xoay"
+                android:textColor="#FFFFFF"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
+        <!-- Trương Anh Ngọc -->
+        <LinearLayout
+            android:id="@+id/ll_expert_truong_anh_ngoc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp">
+            <ImageView
+                android:id="@+id/iv_truong_anh_ngoc"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/truong_anh_ngoc"
+                android:scaleType="centerCrop"
+                android:background="@drawable/avatar_truong_anh_ngoc"
+                android:clipToOutline="true" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trương Anh Ngọc"
+                android:textColor="#FFFFFF"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
+        <!-- Donald Trump -->
+        <LinearLayout
+            android:id="@+id/ll_expert_donald_trump"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp">
+            <ImageView
+                android:id="@+id/iv_donald_trump"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/donald_trump"
+                android:scaleType="centerCrop"
+                android:background="@drawable/avatar_donald_trump"
+                android:clipToOutline="true" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Donald Trump"
+                android:textColor="#FFFFFF"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
+        <!-- Bill Gate -->
+        <LinearLayout
+            android:id="@+id/ll_expert_bill_gate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp">
+            <ImageView
+                android:id="@+id/iv_bill_gate"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/bill_gate"
+                android:scaleType="centerCrop"
+                android:background="@drawable/avatar_bill_gate"
+                android:clipToOutline="true" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bill Gate"
+                android:textColor="#FFFFFF"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
+    </GridLayout>
+</LinearLayout>

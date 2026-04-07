@@ -8,10 +8,13 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -21,6 +24,8 @@ import com.example.project_android_java.R;
 import com.example.project_android_java.manager.GameManager;
 import com.example.project_android_java.manager.QuestionManager;
 import com.example.project_android_java.model.Question;
+
+import java.util.Random;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -35,6 +40,7 @@ public class GameActivity extends AppCompatActivity {
     private ProgressBar pbTimer;
     private Button[] answerButtons;
     private Button btnHideLadder;
+    private ImageButton btnStopGame, btnHelp5050, btnHelpAudience, btnHelpPhone;
     private LinearLayout llMoneyContainer;
     private TextView[] ladderViews = new TextView[15];
 
@@ -42,6 +48,7 @@ public class GameActivity extends AppCompatActivity {
     private CountDownTimer countDownTimer;
     private final Handler handler = new Handler();
     private boolean isAnswerProcessing = false; 
+    private final String[] OPTION_LABELS = {"A. ", "B. ", "C. ", "D. "};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +73,12 @@ public class GameActivity extends AppCompatActivity {
         tvCurrentMoney = findViewById(R.id.tv_current_money);
         tvQuestionHeader = findViewById(R.id.tv_question_header);
         btnHideLadder = findViewById(R.id.btn_hide_ladder);
+        btnStopGame = findViewById(R.id.btn_stop_game);
+        
+        btnHelp5050 = findViewById(R.id.btn_help_5050);
+        btnHelpAudience = findViewById(R.id.btn_help_audience);
+        btnHelpPhone = findViewById(R.id.btn_help_phone);
+
         llMoneyContainer = findViewById(R.id.ll_money_container);
 
         answerButtons = new Button[]{
@@ -77,12 +90,16 @@ public class GameActivity extends AppCompatActivity {
 
         for (int i = 0; i < 4; i++) {
             final int index = i;
-            // QUAN TRỌNG: Xóa bỏ Material tint để Background XML có tác dụng
             answerButtons[i].setBackgroundTintList(null);
             answerButtons[i].setOnClickListener(v -> onAnswerSelected(index));
         }
 
         btnHideLadder.setOnClickListener(v -> showReadyDialog());
+        btnStopGame.setOnClickListener(v -> showStopGameDialog());
+        
+        btnHelp5050.setOnClickListener(v -> onHelp5050());
+        btnHelpAudience.setOnClickListener(v -> onHelpAudience());
+        btnHelpPhone.setOnClickListener(v -> onHelpCall());
     }
 
     private void initGame() {
@@ -119,9 +136,11 @@ public class GameActivity extends AppCompatActivity {
 
     private void updateLadderHighlight() {
         int current = gameManager.getCurrentIndex();
+        int highlightIndex = Math.min(current, 14);
+
         for (int i = 0; i < 15; i++) {
             ladderViews[i].clearAnimation();
-            if (i == current) {
+            if (i == highlightIndex) {
                 ladderViews[i].setBackgroundResource(R.drawable.bg_ladder_current);
                 ladderViews[i].setTextColor(Color.WHITE);
                 AlphaAnimation blink = new AlphaAnimation(0.4f, 1.0f);
@@ -151,6 +170,15 @@ public class GameActivity extends AppCompatActivity {
                 .show();
     }
 
+    private void showStopGameDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Dừng cuộc chơi?")
+                .setMessage("Nếu dừng lại bây giờ, điểm số của bạn sẽ không được lưu vào bảng xếp hạng. Bạn có chắc chắn muốn thoát?")
+                .setPositiveButton("Dừng", (dialog, which) -> finish())
+                .setNegativeButton("Chơi tiếp", null)
+                .show();
+    }
+
     private void startRealGame() {
         btnHideLadder.setVisibility(View.GONE);
         layoutMoneyLadder.animate()
@@ -169,9 +197,10 @@ public class GameActivity extends AppCompatActivity {
         tvQuestion.setText(q.getQuestionText());
         String[] options = q.getOptions();
         for (int i = 0; i < 4; i++) {
-            answerButtons[i].setText(options[i]);
+            answerButtons[i].setText(OPTION_LABELS[i] + options[i]);
             answerButtons[i].setBackgroundResource(R.drawable.bg_answer_clear);
-            answerButtons[i].setBackgroundTintList(null); // Đảm bảo màu tím hiển thị
+            answerButtons[i].setBackgroundTintList(null); 
+            answerButtons[i].setVisibility(View.VISIBLE);
         }
         
         tvQuestionHeader.setText("CÂU HỎI SỐ: " + (gameManager.getCurrentIndex() + 1));
@@ -201,7 +230,6 @@ public class GameActivity extends AppCompatActivity {
 
         if (countDownTimer != null) countDownTimer.cancel();
         
-        // 1. Tô màu Xanh dương cho nút ĐƯỢC CHỌN
         answerButtons[selectedIndex].setBackgroundResource(R.drawable.btn_hex_blue);
         answerButtons[selectedIndex].setBackgroundTintList(null);
 
@@ -215,16 +243,14 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void onCorrect(int selectedIndex) {
-        // 2. Nháy Xanh lá cây xen kẽ với Xanh dương
         blinkButton(answerButtons[selectedIndex], R.drawable.btn_hex_green, R.drawable.btn_hex_blue, () -> {
-            gameManager.advance();
+            gameManager.advance(); 
             showMoneyLadderBriefly();
         });
     }
 
     private void onWrong(int selectedIndex) {
         if (selectedIndex != -1) {
-            // 3. Nháy Đỏ xen kẽ với Xanh dương
             blinkButton(answerButtons[selectedIndex], R.drawable.btn_hex_red, R.drawable.btn_hex_blue, () -> {
                 int correct = gameManager.getCorrectIndex();
                 answerButtons[correct].setBackgroundResource(R.drawable.btn_hex_green);
@@ -244,12 +270,14 @@ public class GameActivity extends AppCompatActivity {
 
     private void showMoneyLadderBriefly() {
         updateLadderHighlight();
+        
         layoutMoneyLadder.setTranslationX(layoutMoneyLadder.getWidth());
         layoutMoneyLadder.setVisibility(View.VISIBLE);
         layoutMoneyLadder.animate().translationX(0).setDuration(600).withEndAction(() -> {
             handler.postDelayed(() -> {
                 layoutMoneyLadder.animate().translationX(layoutMoneyLadder.getWidth()).setDuration(600).withEndAction(() -> {
                     layoutMoneyLadder.setVisibility(View.GONE);
+                    
                     if (gameManager.getState() == GameManager.State.WON) {
                         goToResult(true, MONEY_LADDER[14]);
                     } else {
@@ -265,7 +293,7 @@ public class GameActivity extends AppCompatActivity {
             final int idx = i;
             handler.postDelayed(() -> {
                 btn.setBackgroundResource(idx % 2 == 0 ? targetDrawable : selectedDrawable);
-                btn.setBackgroundTintList(null); // Luôn xóa tint để hiện màu drawable
+                btn.setBackgroundTintList(null);
                 if (idx == 5) {
                     btn.setBackgroundResource(targetDrawable);
                     btn.setBackgroundTintList(null);
@@ -281,6 +309,75 @@ public class GameActivity extends AppCompatActivity {
         intent.putExtra("MONEY_EARNED", money);
         startActivity(intent);
         finish();
+    }
+
+    // ── Quyền trợ giúp ───────────────────────────────────────────────────────────
+
+    private void onHelp5050() {
+        if (gameManager.isUsed5050()) return;
+        gameManager.use5050();
+        btnHelp5050.setAlpha(0.4f);
+        btnHelp5050.setEnabled(false);
+
+        int correct = gameManager.getCorrectIndex();
+        int removedCount = 0;
+        Random rnd = new Random();
+        while (removedCount < 2) {
+            int idx = rnd.nextInt(4);
+            if (idx != correct && answerButtons[idx].getVisibility() == View.VISIBLE) {
+                answerButtons[idx].setVisibility(View.INVISIBLE);
+                removedCount++;
+            }
+        }
+    }
+
+    private void onHelpAudience() {
+        if (gameManager.isUsedAudience()) return;
+        gameManager.useAudience();
+        btnHelpAudience.setAlpha(0.4f);
+        btnHelpAudience.setEnabled(false);
+    }
+
+    private void onHelpCall() {
+        if (gameManager.isUsedPhone()) return;
+
+        View helpView = LayoutInflater.from(this).inflate(R.layout.dialog_call_help, null);
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(helpView).create();
+
+        helpView.findViewById(R.id.ll_expert_cu_trong_xoay).setOnClickListener(v -> showCallResult("Cự Trọng Xoay", R.drawable.cu_trong_xoay, dialog));
+        helpView.findViewById(R.id.ll_expert_truong_anh_ngoc).setOnClickListener(v -> showCallResult("Trương Anh Ngọc", R.drawable.truong_anh_ngoc, dialog));
+        helpView.findViewById(R.id.ll_expert_donald_trump).setOnClickListener(v -> showCallResult("Donald Trump", R.drawable.donald_trump, dialog));
+        helpView.findViewById(R.id.ll_expert_bill_gate).setOnClickListener(v -> showCallResult("Bill Gate", R.drawable.bill_gate, dialog));
+
+        dialog.show();
+    }
+
+    private void showCallResult(String name, int avatarRes, AlertDialog parentDialog) {
+        parentDialog.dismiss();
+        gameManager.usePhone();
+        btnHelpPhone.setAlpha(0.4f);
+        btnHelpPhone.setEnabled(false);
+
+        View resView = LayoutInflater.from(this).inflate(R.layout.dialog_call_result, null);
+        AlertDialog resDialog = new AlertDialog.Builder(this).setView(resView).create();
+
+        ImageView avatarView = resView.findViewById(R.id.iv_expert_avatar);
+        avatarView.setImageResource(avatarRes);
+        ((TextView) resView.findViewById(R.id.tv_expert_name)).setText(name);
+
+        int correctIndex = gameManager.getCorrectIndex();
+        String suggested;
+        if (new Random().nextInt(100) < 90) {
+            suggested = OPTION_LABELS[correctIndex].substring(0, 1);
+        } else {
+            int wrong = (correctIndex + 1) % 4;
+            suggested = OPTION_LABELS[wrong].substring(0, 1);
+        }
+
+        ((TextView) resView.findViewById(R.id.tv_expert_answer)).setText("Theo tôi đáp án đúng là " + suggested);
+        resView.findViewById(R.id.btn_close_call).setOnClickListener(v -> resDialog.dismiss());
+
+        resDialog.show();
     }
 
     private int dp(int dp) { return Math.round(dp * getResources().getDisplayMetrics().density); }

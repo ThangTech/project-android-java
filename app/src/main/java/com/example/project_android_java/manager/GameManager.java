@@ -36,35 +36,36 @@ public class GameManager {
         state = State.LOST;
     }
 
-    /**
-     * Tiền thưởng hiển thị trên màn hình chơi (số tiền chắc chắn có).
-     * Câu 1 (index 0) -> 0đ.
-     * Câu 2 (index 1) -> Tiền câu 1.
-     */
     public long getSecureMoney() {
         if (currentIndex == 0) return 0L;
         return GameActivity.MONEY_LADDER[currentIndex - 1];
     }
 
-    /**
-     * Tiền thưởng thực nhận khi thua cuộc (Dựa trên mốc an toàn).
-     */
     public long getMoneyEarned() {
         if (state == State.WON) return GameActivity.MONEY_LADDER[14];
-        
-        // Trả lời sai:
-        // currentIndex là câu đang đứng mà sai (0-14 tương ứng câu 1-15)
-        if (currentIndex >= 10) return GameActivity.MONEY_LADDER[9]; // Vượt qua mốc câu 10
-        if (currentIndex >= 5)  return GameActivity.MONEY_LADDER[4]; // Vượt qua mốc câu 5
+        if (currentIndex >= 10) return GameActivity.MONEY_LADDER[9];
+        if (currentIndex >= 5)  return GameActivity.MONEY_LADDER[4];
         return 0L;
     }
 
-    // Các quyền trợ giúp...
-    private boolean used5050 = false, usedPhone = false, usedAudience = false;
+    // ── Lifelines ───────────────────────────────────────────────────────────
+    private boolean used5050 = false, usedPhone = false, usedAudience = false, usedChange = false;
+
     public boolean isUsed5050() { return used5050; }
     public boolean isUsedPhone() { return usedPhone; }
     public boolean isUsedAudience() { return usedAudience; }
+    public boolean isUsedChange() { return usedChange; }
+
     public void use5050() { used5050 = true; }
     public void usePhone() { usedPhone = true; }
     public void useAudience() { usedAudience = true; }
+    public void useChange() { usedChange = true; }
+
+    /**
+     * Thực hiện đổi câu hỏi: Hoán đổi câu hỏi hiện tại với một câu hỏi ngẫu nhiên khác
+     * (Trong thực tế, bạn có thể chỉ cần lấy câu tiếp theo trong list nếu list đủ dài)
+     */
+    public void changeQuestion(Question newQuestion) {
+        questions.set(currentIndex, newQuestion);
+    }
 }

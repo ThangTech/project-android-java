@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="56dp"
+    android:height="56dp"
+    android:viewportWidth="56"
+    android:viewportHeight="56">
+    <path
+        android:pathData="M28,28m-26,0a26,26 0,1 1,52 0a26,26 0,1 1,-52 0"
+        android:strokeWidth="2"
+        android:strokeColor="#FFFFFF"
+        android:fillColor="#007FFF" />
+    <!-- Biểu tượng mũi tên xoay tròn (đơn giản hóa cho vector) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,28c0,5.5 -4.5,10 -10,10c-2.5,0 -4.8,-0.9 -6.5,-2.4l2.1,-2.1c1.2,1 2.7,1.6,4.4,1.6c3.9,0 7,-3.1 7,-7s-3.1,-7 -7,-7c-1.7,0 -3.2,0.6 -4.4,1.6l2.4,2.4L18,25l0,-9l2.4,2.4C22.2,16.9 25,16 28,16C33.5,16 38,20.5 38,28z" />
+</vector>
