@@ -7,15 +7,6 @@
     <path
         android:pathData="M20,0 L240,0 L260,30 L240,60 L20,60 L0,30 Z"
         android:strokeWidth="2"
-        android:strokeColor="#FFFFFF">
-        <gradient
-            android:startColor="#FF8C00"
-            android:centerColor="#FFD700"
-            android:endColor="#FF8C00"
-            android:type="linear"
-            android:startX="0"
-            android:startY="30"
-            android:endX="260"
-            android:endY="30" />
-    </path>
+        android:strokeColor="#FFFFFF"
+        android:fillColor="#FFD700" />
 </vector>

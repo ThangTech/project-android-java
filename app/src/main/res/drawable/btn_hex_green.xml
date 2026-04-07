@@ -1,20 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="300dp"
-    android:height="60dp"
+    android:height="56dp"
     android:viewportWidth="300"
-    android:viewportHeight="60">
+    android:viewportHeight="56">
     <path
-        android:pathData="M20,0 L280,0 L300,30 L280,60 L20,60 L0,30 Z"
-        android:strokeWidth="2"
-        android:strokeColor="#FFFFFF">
-        <gradient
-            android:startColor="#1B5E20"
-            android:centerColor="#2E7D32"
-            android:endColor="#1B5E20"
-            android:type="linear"
-            android:startX="0"
-            android:startY="30"
-            android:endX="300"
-            android:endY="30" />
-    </path>
+        android:pathData="M20,2 L280,2 L298,28 L280,54 L20,54 L2,28 Z"
+        android:strokeWidth="2.5"
+        android:strokeColor="#FFFFFF"
+        android:fillColor="#00FF00"/>
 </vector>
