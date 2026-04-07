@@ -366,8 +366,19 @@ public class GameActivity extends AppCompatActivity {
         ((TextView) resView.findViewById(R.id.tv_expert_name)).setText(name);
 
         int correctIndex = gameManager.getCorrectIndex();
+        int currentLevel = gameManager.getCurrentIndex();
+
+        int accuracy;
+        if (currentLevel < 5) {
+            accuracy = 100;
+        } else if (currentLevel < 10) {
+            accuracy = 80;
+        } else {
+            accuracy = 60;
+        }
+
         String suggested;
-        if (new Random().nextInt(100) < 90) {
+        if (new Random().nextInt(100) < accuracy) {
             suggested = OPTION_LABELS[correctIndex].substring(0, 1);
         } else {
             int wrong = (correctIndex + 1) % 4;
