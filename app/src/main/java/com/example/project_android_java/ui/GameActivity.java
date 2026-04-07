@@ -344,7 +344,7 @@ public class GameActivity extends AppCompatActivity {
         View helpView = LayoutInflater.from(this).inflate(R.layout.dialog_call_help, null);
         AlertDialog dialog = new AlertDialog.Builder(this).setView(helpView).create();
 
-        helpView.findViewById(R.id.ll_expert_cu_trong_xoay).setOnClickListener(v -> showCallResult("Cự Trọng Xoay", R.drawable.cu_trong_xoay, dialog));
+        helpView.findViewById(R.id.ll_expert_cu_trong_xoay).setOnClickListener(v -> showCallResult("Cù Trọng Xoay", R.drawable.cu_trong_xoay, dialog));
         helpView.findViewById(R.id.ll_expert_truong_anh_ngoc).setOnClickListener(v -> showCallResult("Trương Anh Ngọc", R.drawable.truong_anh_ngoc, dialog));
         helpView.findViewById(R.id.ll_expert_donald_trump).setOnClickListener(v -> showCallResult("Donald Trump", R.drawable.donald_trump, dialog));
         helpView.findViewById(R.id.ll_expert_bill_gate).setOnClickListener(v -> showCallResult("Bill Gate", R.drawable.bill_gate, dialog));
