@@ -37,8 +37,11 @@ public class GameManager {
     }
 
     public long getSecureMoney() {
-        if (currentIndex == 0) return 0L;
-        return GameActivity.MONEY_LADDER[currentIndex - 1];
+        long total = 0;
+        for (int i = 0; i < currentIndex; i++) {
+            total += GameActivity.MONEY_LADDER[i];
+        }
+        return total;
     }
 
     public long getMoneyEarned() {

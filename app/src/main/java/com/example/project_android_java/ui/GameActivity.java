@@ -8,13 +8,11 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -311,12 +309,12 @@ public class GameActivity extends AppCompatActivity {
         finish();
     }
 
-    // ── Quyền trợ giúp ───────────────────────────────────────────────────────────
+    // ── Quyền trợ giúp (Đã tách ra Activity) ────────────────────────────────────
 
     private void onHelp5050() {
         if (gameManager.isUsed5050()) return;
         gameManager.use5050();
-        btnHelp5050.setAlpha(0.4f);
+        btnHelp5050.setImageResource(R.drawable.tg_5050_2);
         btnHelp5050.setEnabled(false);
 
         int correct = gameManager.getCorrectIndex();
@@ -334,61 +332,25 @@ public class GameActivity extends AppCompatActivity {
     private void onHelpAudience() {
         if (gameManager.isUsedAudience()) return;
         gameManager.useAudience();
-        btnHelpAudience.setAlpha(0.4f);
+        btnHelpAudience.setImageResource(R.drawable.tg_kg_2);
         btnHelpAudience.setEnabled(false);
+
+        Intent intent = new Intent(this, HelpAudienceActivity.class);
+        intent.putExtra("CORRECT_INDEX", gameManager.getCorrectIndex());
+        intent.putExtra("QUESTION_INDEX", gameManager.getCurrentIndex());
+        startActivity(intent);
     }
 
     private void onHelpCall() {
         if (gameManager.isUsedPhone()) return;
-
-        View helpView = LayoutInflater.from(this).inflate(R.layout.dialog_call_help, null);
-        AlertDialog dialog = new AlertDialog.Builder(this).setView(helpView).create();
-
-        helpView.findViewById(R.id.ll_expert_cu_trong_xoay).setOnClickListener(v -> showCallResult("Cù Trọng Xoay", R.drawable.cu_trong_xoay, dialog));
-        helpView.findViewById(R.id.ll_expert_truong_anh_ngoc).setOnClickListener(v -> showCallResult("Trương Anh Ngọc", R.drawable.truong_anh_ngoc, dialog));
-        helpView.findViewById(R.id.ll_expert_donald_trump).setOnClickListener(v -> showCallResult("Donald Trump", R.drawable.donald_trump, dialog));
-        helpView.findViewById(R.id.ll_expert_bill_gate).setOnClickListener(v -> showCallResult("Bill Gate", R.drawable.bill_gate, dialog));
-
-        dialog.show();
-    }
-
-    private void showCallResult(String name, int avatarRes, AlertDialog parentDialog) {
-        parentDialog.dismiss();
         gameManager.usePhone();
-        btnHelpPhone.setAlpha(0.4f);
+        btnHelpPhone.setImageResource(R.drawable.tg_call_2);
         btnHelpPhone.setEnabled(false);
 
-        View resView = LayoutInflater.from(this).inflate(R.layout.dialog_call_result, null);
-        AlertDialog resDialog = new AlertDialog.Builder(this).setView(resView).create();
-
-        ImageView avatarView = resView.findViewById(R.id.iv_expert_avatar);
-        avatarView.setImageResource(avatarRes);
-        ((TextView) resView.findViewById(R.id.tv_expert_name)).setText(name);
-
-        int correctIndex = gameManager.getCorrectIndex();
-        int currentLevel = gameManager.getCurrentIndex();
-
-        int accuracy;
-        if (currentLevel < 5) {
-            accuracy = 100;
-        } else if (currentLevel < 10) {
-            accuracy = 80;
-        } else {
-            accuracy = 60;
-        }
-
-        String suggested;
-        if (new Random().nextInt(100) < accuracy) {
-            suggested = OPTION_LABELS[correctIndex].substring(0, 1);
-        } else {
-            int wrong = (correctIndex + 1) % 4;
-            suggested = OPTION_LABELS[wrong].substring(0, 1);
-        }
-
-        ((TextView) resView.findViewById(R.id.tv_expert_answer)).setText("Theo tôi đáp án đúng là " + suggested);
-        resView.findViewById(R.id.btn_close_call).setOnClickListener(v -> resDialog.dismiss());
-
-        resDialog.show();
+        Intent intent = new Intent(this, HelpCallActivity.class);
+        intent.putExtra("CORRECT_INDEX", gameManager.getCorrectIndex());
+        intent.putExtra("QUESTION_INDEX", gameManager.getCurrentIndex());
+        startActivity(intent);
     }
 
     private int dp(int dp) { return Math.round(dp * getResources().getDisplayMetrics().density); }

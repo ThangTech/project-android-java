@@ -171,4 +171,7 @@
             android:textAllCaps="false" />
     </LinearLayout>
 
+    <!-- LỚP 3: TRỢ GIÚP KHÁN GIẢ -->
+    <include layout="@layout/layout_audience_help" />
+
 </FrameLayout>

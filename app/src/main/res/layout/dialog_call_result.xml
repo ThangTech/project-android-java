@@ -20,7 +20,7 @@
         android:id="@+id/tv_expert_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cự Trọng Xoay"
+        android:text="Cù Trọng Xoay"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:textStyle="bold"

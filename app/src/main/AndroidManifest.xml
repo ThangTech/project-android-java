@@ -11,6 +11,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Projectandroidjava">
+
+        <activity
+            android:name=".ui.HelpAudienceActivity"
+            android:theme="@style/Theme.HelpDialog"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.HelpCallActivity"
+            android:theme="@style/Theme.HelpDialog"
+            android:exported="false" />
+
         <activity
             android:name=".ui.ResultActivity"
             android:exported="false" />
