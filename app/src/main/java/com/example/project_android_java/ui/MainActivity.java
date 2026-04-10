@@ -48,9 +48,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnInfo.setOnClickListener(v -> showInfoDialog());
-        btnRank.setOnClickListener(v -> {
-            // Sẽ làm sau
-        });
+        btnRank.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RankActivity.class)));
         btnSettings.setOnClickListener(v -> showSettingsDialog());
     }
 
