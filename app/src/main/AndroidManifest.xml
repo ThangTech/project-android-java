@@ -23,6 +23,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.RankActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.ResultActivity"
             android:exported="false" />
         <activity
