@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.project_android_java.R;
+import com.example.project_android_java.manager.ScoreManager;
 
 public class ResultActivity extends AppCompatActivity {
 
@@ -16,12 +17,15 @@ public class ResultActivity extends AppCompatActivity {
     private EditText edtPlayerName;
     private Button btnSaveScore, btnPlayAgain, btnMainMenu;
     private long finalScore = 0;
+    private int questionsCorrect = 0;
+    private ScoreManager scoreManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
+        scoreManager = ScoreManager.getInstance(this);
         initViews();
         displayResult();
     }
@@ -41,13 +45,14 @@ public class ResultActivity extends AppCompatActivity {
 
     private void displayResult() {
         boolean isWin = getIntent().getBooleanExtra("IS_WIN", false);
-        finalScore    = getIntent().getLongExtra("MONEY_EARNED", 0);
+        finalScore = getIntent().getLongExtra("MONEY_EARNED", 0);
+        questionsCorrect = getIntent().getIntExtra("QUESTIONS_CORRECT", 0);
 
         if (isWin) {
-            tvResultTitle.setText("🎉 CHÚC MỪNG!");
+            tvResultTitle.setText("CHUC MONG!");
             tvResultTitle.setTextColor(0xFFFFD700);
         } else {
-            tvResultTitle.setText("💔 RẤT TIẾC!");
+            tvResultTitle.setText("RAT TIEC!");
             tvResultTitle.setTextColor(0xFFFF6B6B);
         }
 
@@ -57,15 +62,18 @@ public class ResultActivity extends AppCompatActivity {
     private void savePlayerScore() {
         String name = edtPlayerName.getText().toString().trim();
         if (name.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập tên của bạn!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Vui long nhap ten cua ban!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Logic lưu điểm (Sau này sẽ kết nối Database/Leaderboard)
-        // Hiện tại chúng ta thông báo thành công
-        Toast.makeText(this, "Đã lưu điểm của " + name + ": " + GameActivity.formatMoney(finalScore), Toast.LENGTH_LONG).show();
-        
-        // Vô hiệu hóa nút sau khi lưu để tránh lưu trùng
+        long result = scoreManager.saveScore(name, finalScore, questionsCorrect);
+        if (result > 0) {
+            Toast.makeText(this, "Da luu diem cua " + name + ": " + GameActivity.formatMoney(finalScore), Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "Loi luu diem!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         btnSaveScore.setEnabled(false);
         btnSaveScore.setAlpha(0.5f);
         edtPlayerName.setEnabled(false);

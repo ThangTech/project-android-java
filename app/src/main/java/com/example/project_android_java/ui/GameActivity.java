@@ -305,6 +305,7 @@ public class GameActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ResultActivity.class);
         intent.putExtra("IS_WIN", win);
         intent.putExtra("MONEY_EARNED", money);
+        intent.putExtra("QUESTIONS_CORRECT", gameManager.getCurrentIndex());
         startActivity(intent);
         finish();
     }
