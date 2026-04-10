@@ -90,7 +90,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (isQuestionsEmpty()) {
             try {
                 String jsonString = readJsonFromAssets("question.json");
-                JSONArray questions = new JSONArray(jsonString);
+                JSONObject root = new JSONObject(jsonString);
+                JSONArray questions = root.getJSONArray("questions");
                 List<ContentValues> questionList = new ArrayList<>();
 
                 for (int i = 0; i < questions.length(); i++) {
@@ -211,6 +212,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         return highScore;
+    }
+
+    public List<String[]> getAllQuestions() {
+        List<String[]> questions = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_QUESTIONS, null, null, null, null, null, null);
+
+        while (cursor.moveToNext()) {
+            String[] q = {
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_QUESTION)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_OPTION_A)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_OPTION_B)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_OPTION_C)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_OPTION_D)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_CORRECT)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_LEVEL)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_CATEGORY))
+            };
+            questions.add(q);
+        }
+        cursor.close();
+        return questions;
     }
 
     public void close() {
