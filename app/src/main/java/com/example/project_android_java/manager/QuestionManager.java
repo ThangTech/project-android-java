@@ -34,8 +34,13 @@ public class QuestionManager {
 
     public boolean loadQuestions() {
         try {
-            dbHelper.importQuestionsFromJson();
+            dbHelper.importQuestionsFromJson(true);
             allQuestions = loadAllFromDatabase();
+
+            if (allQuestions.isEmpty()) {
+                Log.e(TAG, "Danh sách câu hỏi rỗng!");
+                return false;
+            }
 
             Log.d(TAG, "Load thành công: " + allQuestions.size() + " câu hỏi");
             return true;

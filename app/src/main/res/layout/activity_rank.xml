@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="BANG XEP HANG"
+        android:text="BẢNG XẾP HẠNG"
         android:textSize="28sp"
         android:textColor="#FFD700"
         android:textStyle="bold"
@@ -20,7 +20,7 @@
         android:id="@+id/tv_high_score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Diem cao nhat: 0"
+        android:text="Điểm cao nhất: 0"
         android:textSize="16sp"
         android:textColor="#FFFFFF"
         android:layout_marginBottom="20dp" />
@@ -38,7 +38,7 @@
         android:id="@+id/btn_back"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="QUAY LAI"
+        android:text="QUAY LẠI"
         android:textSize="16sp"
         android:background="@drawable/btn_rect_purple"
         android:textColor="#FFFFFF"

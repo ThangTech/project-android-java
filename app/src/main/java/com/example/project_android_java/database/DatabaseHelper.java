@@ -86,8 +86,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void importQuestionsFromJson() {
+        importQuestionsFromJson(false);
+    }
+
+    public void importQuestionsFromJson(boolean forceReload) {
         SQLiteDatabase db = this.getWritableDatabase();
-        if (isQuestionsEmpty()) {
+        if (forceReload) {
+            db.delete(TABLE_QUESTIONS, null, null);
+            Log.d(TAG, "Deleted old questions for reload");
+        }
+        
+        if (forceReload || isQuestionsEmpty()) {
             try {
                 String jsonString = readJsonFromAssets("question.json");
                 JSONObject root = new JSONObject(jsonString);

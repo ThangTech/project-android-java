@@ -114,8 +114,26 @@ public class GameActivity extends AppCompatActivity {
 
     private void initGame() {
         QuestionManager qm = QuestionManager.getInstance(this);
-        qm.loadQuestions();
+        boolean loaded = qm.loadQuestions();
+        
+        if (!loaded || qm.getTotalQuestions() == 0) {
+            showLoadErrorDialog();
+            return;
+        }
+        
         gameManager = new GameManager(qm.getGameQuestions());
+        if (gameManager.getCurrentQuestion() == null) {
+            showLoadErrorDialog();
+        }
+    }
+
+    private void showLoadErrorDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Lỗi")
+                .setMessage("Không thể tải câu hỏi. Vui lòng thử lại!")
+                .setCancelable(false)
+                .setPositiveButton("OK", (d, w) -> finish())
+                .show();
     }
 
     private void buildMoneyLadder() {
