@@ -33,11 +33,11 @@ public class SoundManager {
 
     public void initSoundPool() {
         soundPool = new SoundPool(5, android.media.AudioManager.STREAM_MUSIC, 0);
-        soundCorrect = soundPool.load(context, R.raw.correct, 1);
-        soundWrong = soundPool.load(context, R.raw.wrong, 1);
-        soundClick = soundPool.load(context, R.raw.click, 1);
-        soundWin = soundPool.load(context, R.raw.win, 1);
-        soundLose = soundPool.load(context, R.raw.lose, 1);
+        soundCorrect = soundPool.load(context, R.raw.cau_tra_loi_dung, 1);
+        soundWrong = soundPool.load(context, R.raw.cau_15_sai, 1);
+        soundClick = soundPool.load(context, R.raw.game_start, 1);
+        soundWin = soundPool.load(context, R.raw.cau_15_dung, 1);
+        soundLose = soundPool.load(context, R.raw.cau_15_sai, 1);
     }
 
     public void playCorrect() {
