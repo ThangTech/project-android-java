@@ -1,12 +1,16 @@
 package com.example.project_android_java.ui;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.os.Vibrator;
+import android.os.VibratorManager;
 import android.view.Gravity;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -45,8 +49,9 @@ public class GameActivity extends AppCompatActivity {
     private GameManager gameManager;
     private CountDownTimer countDownTimer;
     private final Handler handler = new Handler();
-    private boolean isAnswerProcessing = false; 
+    private boolean isAnswerProcessing = false;
     private final String[] OPTION_LABELS = {"A. ", "B. ", "C. ", "D. "};
+    private Vibrator vibrator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +61,14 @@ public class GameActivity extends AppCompatActivity {
         initViews();
         initGame();
         buildMoneyLadder();
-        
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            VibratorManager vm = (VibratorManager) getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
+            vibrator = vm.getDefaultVibrator();
+        } else {
+            vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        }
+
         layoutMoneyLadder.setVisibility(View.VISIBLE);
         layoutQuestionMain.setVisibility(View.INVISIBLE);
         btnHideLadder.setVisibility(View.VISIBLE);
@@ -241,13 +253,15 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void onCorrect(int selectedIndex) {
+        vibrateCorrect();
         blinkButton(answerButtons[selectedIndex], R.drawable.btn_hex_green, R.drawable.btn_hex_blue, () -> {
-            gameManager.advance(); 
+            gameManager.advance();
             showMoneyLadderBriefly();
         });
     }
 
     private void onWrong(int selectedIndex) {
+        vibrateWrong();
         if (selectedIndex != -1) {
             blinkButton(answerButtons[selectedIndex], R.drawable.btn_hex_red, R.drawable.btn_hex_blue, () -> {
                 int correct = gameManager.getCorrectIndex();
@@ -277,6 +291,7 @@ public class GameActivity extends AppCompatActivity {
                     layoutMoneyLadder.setVisibility(View.GONE);
                     
                     if (gameManager.getState() == GameManager.State.WON) {
+                        vibrateWin();
                         goToResult(true, MONEY_LADDER[14]);
                     } else {
                         showQuestion();
@@ -356,4 +371,23 @@ public class GameActivity extends AppCompatActivity {
 
     private int dp(int dp) { return Math.round(dp * getResources().getDisplayMetrics().density); }
     public static String formatMoney(long amount) { return String.format("%,d", amount).replace(',', '.') + " đ"; }
+
+    private void vibrateCorrect() {
+        if (vibrator != null && vibrator.hasVibrator()) {
+            vibrator.vibrate(100);
+        }
+    }
+
+    private void vibrateWrong() {
+        if (vibrator != null && vibrator.hasVibrator()) {
+            vibrator.vibrate(300);
+        }
+    }
+
+    private void vibrateWin() {
+        if (vibrator != null && vibrator.hasVibrator()) {
+            long[] pattern = {0, 100, 100, 100, 100, 100};
+            vibrator.vibrate(pattern, -1);
+        }
+    }
 }
