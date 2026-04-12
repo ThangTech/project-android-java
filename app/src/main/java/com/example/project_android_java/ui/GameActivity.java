@@ -26,6 +26,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.project_android_java.R;
 import com.example.project_android_java.manager.GameManager;
 import com.example.project_android_java.manager.QuestionManager;
+import com.example.project_android_java.manager.ScoreManager;
+import com.example.project_android_java.manager.SoundManager;
 import com.example.project_android_java.model.Question;
 
 import java.util.Random;
@@ -48,6 +50,7 @@ public class GameActivity extends AppCompatActivity {
     private TextView[] ladderViews = new TextView[15];
 
     private GameManager gameManager;
+    private SoundManager soundManager;
     private CountDownTimer countDownTimer;
     private final Handler handler = new Handler();
     private boolean isAnswerProcessing = false;
@@ -73,6 +76,10 @@ public class GameActivity extends AppCompatActivity {
         layoutMoneyLadder.setVisibility(View.VISIBLE);
         layoutQuestionMain.setVisibility(View.INVISIBLE);
         btnHideLadder.setVisibility(View.VISIBLE);
+
+        soundManager = SoundManager.getInstance(this);
+        soundManager.initSoundPool();
+        soundManager.playIntro();
     }
 
     private void initViews() {
@@ -196,7 +203,10 @@ public class GameActivity extends AppCompatActivity {
                 .setTitle("Sẵn sàng?")
                 .setMessage("Bạn đã sẵn sàng chơi với chúng tôi chưa?")
                 .setCancelable(false)
-                .setPositiveButton("Sẵn sàng", (dialog, which) -> startRealGame())
+                .setPositiveButton("Sẵn sàng", (dialog, which) -> {
+                    soundManager.stopIntro();
+                    soundManager.playReady(() -> runOnUiThread(() -> startRealGame()));
+                })
                 .setNegativeButton("Bỏ qua", (dialog, which) -> finish())
                 .show();
     }
@@ -239,6 +249,18 @@ public class GameActivity extends AppCompatActivity {
         
         checkShowSageHelp();
         
+        int currentQ = gameManager.getCurrentIndex() + 1;
+        
+        if (currentQ <= 5) {
+            soundManager.playQuestion(currentQ, () -> {
+                runOnUiThread(() -> {
+                    soundManager.playBackground15();
+                });
+            });
+        } else {
+            soundManager.playQuestion(currentQ);
+        }
+        
         startTimer();
     }
 
@@ -249,6 +271,10 @@ public class GameActivity extends AppCompatActivity {
                 int seconds = (int) (millisUntilFinished / 1000);
                 tvTimer.setText(String.valueOf(seconds));
                 pbTimer.setProgress(seconds);
+                
+                if (seconds == 30) {
+                    soundManager.playTimer30s();
+                }
             }
             public void onFinish() {
                 pbTimer.setProgress(0);
@@ -262,6 +288,8 @@ public class GameActivity extends AppCompatActivity {
         isAnswerProcessing = true;
 
         if (countDownTimer != null) countDownTimer.cancel();
+        
+        soundManager.stopBackground();
         
         answerButtons[selectedIndex].setBackgroundResource(R.drawable.btn_hex_blue);
         answerButtons[selectedIndex].setBackgroundTintList(null);
@@ -278,18 +306,45 @@ public class GameActivity extends AppCompatActivity {
     private void onCorrect(int selectedIndex) {
         vibrateCorrect();
         blinkButton(answerButtons[selectedIndex], R.drawable.btn_hex_green, R.drawable.btn_hex_blue, () -> {
-            gameManager.advance();
-            showMoneyLadderBriefly();
+            int currentQ = gameManager.getCurrentIndex() + 1;
+            int correctIndex = gameManager.getCorrectIndex();
+            
+            if (currentQ == 5) {
+                soundManager.playCorrect5WithCallback(() -> {
+                    runOnUiThread(() -> {
+                        gameManager.advance();
+                        showMoneyLadderBriefly();
+                    });
+                });
+            } else if (currentQ <= 5) {
+                soundManager.playCorrectAnswerByIndex(correctIndex, () -> {
+                    runOnUiThread(() -> {
+                        gameManager.advance();
+                        showMoneyLadderBriefly();
+                    });
+                });
+            } else {
+                gameManager.advance();
+                showMoneyLadderBriefly();
+            }
         });
     }
 
     private void onWrong(int selectedIndex) {
+        soundManager.playWrong();
         vibrateWrong();
+        
         if (selectedIndex != -1) {
             blinkButton(answerButtons[selectedIndex], R.drawable.btn_hex_red, R.drawable.btn_hex_blue, () -> {
                 int correct = gameManager.getCorrectIndex();
                 answerButtons[correct].setBackgroundResource(R.drawable.btn_hex_green);
                 answerButtons[correct].setBackgroundTintList(null);
+                
+                int currentQ = gameManager.getCurrentIndex() + 1;
+                if (currentQ <= 5) {
+                    soundManager.playWrong15();
+                }
+                
                 showExplanationAndFinish();
             });
         } else {
@@ -370,6 +425,11 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void goToResult(boolean win, long money) {
+        if (win) {
+            soundManager.playWin();
+        } else {
+            soundManager.playLose();
+        }
         Intent intent = new Intent(this, ResultActivity.class);
         intent.putExtra("IS_WIN", win);
         intent.putExtra("MONEY_EARNED", money);
@@ -382,49 +442,79 @@ public class GameActivity extends AppCompatActivity {
 
     private void onHelp5050() {
         if (gameManager.isUsed5050()) return;
+        soundManager.stopBackground();
         gameManager.use5050();
-        btnHelp5050.setImageResource(R.drawable.tg_5050_2);
-        btnHelp5050.setEnabled(false);
+        
+        soundManager.play5050WithCallback(() -> {
+            runOnUiThread(() -> {
+                soundManager.play5050();
+                
+                btnHelp5050.setImageResource(R.drawable.tg_5050_2);
+                btnHelp5050.setEnabled(false);
 
-        int correct = gameManager.getCorrectIndex();
-        int removedCount = 0;
-        Random rnd = new Random();
-        while (removedCount < 2) {
-            int idx = rnd.nextInt(4);
-            if (idx != correct && answerButtons[idx].getVisibility() == View.VISIBLE) {
-                answerButtons[idx].setVisibility(View.INVISIBLE);
-                removedCount++;
-            }
-        }
+                int correct = gameManager.getCorrectIndex();
+                int removedCount = 0;
+                Random rnd = new Random();
+                while (removedCount < 2) {
+                    int idx = rnd.nextInt(4);
+                    if (idx != correct && answerButtons[idx].getVisibility() == View.VISIBLE) {
+                        answerButtons[idx].setVisibility(View.INVISIBLE);
+                        removedCount++;
+                    }
+                }
+            });
+        });
     }
 
     private void onHelpAudience() {
         if (gameManager.isUsedAudience()) return;
+        soundManager.stopBackground();
         gameManager.useAudience();
-        btnHelpAudience.setImageResource(R.drawable.tg_kg_2);
-        btnHelpAudience.setEnabled(false);
+        
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+        
+        soundManager.playAudienceWithCallback(() -> {
+            runOnUiThread(() -> {
+                soundManager.playAudience();
+                
+                btnHelpAudience.setImageResource(R.drawable.tg_kg_2);
+                btnHelpAudience.setEnabled(false);
 
-        Intent intent = new Intent(this, HelpAudienceActivity.class);
-        intent.putExtra("CORRECT_INDEX", gameManager.getCorrectIndex());
-        intent.putExtra("QUESTION_INDEX", gameManager.getCurrentIndex());
-        startActivity(intent);
+                Intent intent = new Intent(this, HelpAudienceActivity.class);
+                intent.putExtra("CORRECT_INDEX", gameManager.getCorrectIndex());
+                intent.putExtra("QUESTION_INDEX", gameManager.getCurrentIndex());
+                startActivity(intent);
+            });
+        });
     }
 
     private void onHelpCall() {
         if (gameManager.isUsedPhone()) return;
+        soundManager.stopBackground();
         gameManager.usePhone();
-        btnHelpPhone.setImageResource(R.drawable.tg_call_2);
-        btnHelpPhone.setEnabled(false);
+        
+        soundManager.playPhoneWithCallback(() -> {
+            runOnUiThread(() -> {
+                soundManager.playPhone();
+                
+                btnHelpPhone.setImageResource(R.drawable.tg_call_2);
+                btnHelpPhone.setEnabled(false);
 
-        Intent intent = new Intent(this, HelpCallActivity.class);
-        intent.putExtra("CORRECT_INDEX", gameManager.getCorrectIndex());
-        intent.putExtra("QUESTION_INDEX", gameManager.getCurrentIndex());
-        startActivity(intent);
+                Intent intent = new Intent(this, HelpCallActivity.class);
+                intent.putExtra("CORRECT_INDEX", gameManager.getCorrectIndex());
+                intent.putExtra("QUESTION_INDEX", gameManager.getCurrentIndex());
+                startActivity(intent);
+            });
+        });
     }
 
     private void onHelpSage() {
         if (gameManager.isUsedSage()) return;
+        soundManager.stopBackground();
         gameManager.useSage();
+        soundManager.playSage();
         btnHelpSage.setImageResource(R.drawable.tg_nha_thong_thai_2);
         btnHelpSage.setEnabled(false);
 
@@ -466,6 +556,24 @@ public class GameActivity extends AppCompatActivity {
         if (vibrator != null && vibrator.hasVibrator()) {
             long[] pattern = {0, 100, 100, 100, 100, 100};
             vibrator.vibrate(pattern, -1);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (soundManager != null) {
+            soundManager.releaseSoundPool();
+            soundManager.stopBackground();
+            soundManager.stopIntro();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isAnswerProcessing && gameManager.getState() == GameManager.State.PLAYING) {
+            startTimer();
         }
     }
 }
