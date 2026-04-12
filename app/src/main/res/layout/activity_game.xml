@@ -87,6 +87,7 @@
             <ImageButton android:id="@+id/btn_help_5050" android:layout_width="56dp" android:layout_height="56dp" android:src="@drawable/tg_5050" android:background="?attr/selectableItemBackgroundBorderless" android:layout_margin="8dp" android:scaleType="fitCenter"/>
             <ImageButton android:id="@+id/btn_help_audience" android:layout_width="56dp" android:layout_height="56dp" android:src="@drawable/tg_kg" android:background="?attr/selectableItemBackgroundBorderless" android:layout_margin="8dp" android:scaleType="fitCenter"/>
             <ImageButton android:id="@+id/btn_help_phone" android:layout_width="56dp" android:layout_height="56dp" android:src="@drawable/tg_call" android:background="?attr/selectableItemBackgroundBorderless" android:layout_margin="8dp" android:scaleType="fitCenter"/>
+            <ImageButton android:id="@+id/btn_help_sage" android:layout_width="56dp" android:layout_height="56dp" android:src="@drawable/tg_nha_thong_thai" android:background="?attr/selectableItemBackgroundBorderless" android:layout_margin="8dp" android:scaleType="fitCenter" android:visibility="gone"/>
         </LinearLayout>
 
         <!-- Khung Câu hỏi -->

@@ -25,6 +25,11 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.HelpSageActivity"
+            android:theme="@style/Theme.HelpDialog"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.RankActivity"
             android:exported="false" />
 

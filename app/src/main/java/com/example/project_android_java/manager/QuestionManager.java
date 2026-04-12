@@ -61,8 +61,9 @@ public class QuestionManager {
             int correct = Integer.parseInt(q[6]);
             int level = Integer.parseInt(q[7]);
             String category = q.length > 8 ? q[8] : "General";
+            String evidence = q.length > 9 ? q[9] : "";
 
-            questions.add(new Question(id, text, options, correct, level, category));
+            questions.add(new Question(id, text, options, correct, level, category, evidence));
         }
         return questions;
     }

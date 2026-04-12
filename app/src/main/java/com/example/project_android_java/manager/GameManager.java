@@ -52,17 +52,19 @@ public class GameManager {
     }
 
     // ── Lifelines ───────────────────────────────────────────────────────────
-    private boolean used5050 = false, usedPhone = false, usedAudience = false, usedChange = false;
+    private boolean used5050 = false, usedPhone = false, usedAudience = false, usedChange = false, usedSage = false;
 
     public boolean isUsed5050() { return used5050; }
     public boolean isUsedPhone() { return usedPhone; }
     public boolean isUsedAudience() { return usedAudience; }
     public boolean isUsedChange() { return usedChange; }
+    public boolean isUsedSage() { return usedSage; }
 
     public void use5050() { used5050 = true; }
     public void usePhone() { usedPhone = true; }
     public void useAudience() { usedAudience = true; }
     public void useChange() { usedChange = true; }
+    public void useSage() { usedSage = true; }
 
     /**
      * Thực hiện đổi câu hỏi: Hoán đổi câu hỏi hiện tại với một câu hỏi ngẫu nhiên khác

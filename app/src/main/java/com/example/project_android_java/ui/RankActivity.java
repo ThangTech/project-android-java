@@ -1,8 +1,11 @@
 package com.example.project_android_java.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -44,23 +47,57 @@ public class RankActivity extends AppCompatActivity {
 
     private void loadLeaderboard() {
         long highScore = scoreManager.getHighScore();
-        tvHighScore.setText("Diem cao nhat: " + GameActivity.formatMoney(highScore));
+        tvHighScore.setText("Điểm cao nhất: " + GameActivity.formatMoney(highScore));
 
         List<String[]> topScores = scoreManager.getTopScores(20);
 
         if (topScores.isEmpty()) {
-            Toast.makeText(this, "Chua co diem!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Chưa có điểm!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        List<String> displayList = new ArrayList<>();
-        for (int i = 0; i < topScores.size(); i++) {
-            String[] score = topScores.get(i);
-            String display = (i + 1) + ". " + score[0] + " - " + GameActivity.formatMoney(Long.parseLong(score[1]));
-            displayList.add(display);
+        RankAdapter adapter = new RankAdapter(this, topScores);
+        lvRank.setAdapter(adapter);
+    }
+
+    static class RankAdapter extends ArrayAdapter<String[]> {
+        private final List<String[]> scores;
+
+        public RankAdapter(Context context, List<String[]> scores) {
+            super(context, R.layout.item_rank);
+            this.scores = scores;
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.item_rank, displayList);
-        lvRank.setAdapter(adapter);
+        @Override
+        public int getCount() {
+            return scores.size();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_rank, parent, false);
+            }
+
+            String[] score = scores.get(position);
+            String rank = String.valueOf(position + 1);
+            String name = score[0];
+            String money = GameActivity.formatMoney(Long.parseLong(score[1]));
+
+            TextView tvRankNumber = convertView.findViewById(R.id.tv_rank_number);
+            TextView tvPlayerName = convertView.findViewById(R.id.tv_player_name);
+            TextView tvScore = convertView.findViewById(R.id.tv_score);
+
+            tvRankNumber.setText(rank);
+            tvPlayerName.setText(name);
+            tvScore.setText(money);
+
+            return convertView;
+        }
+
+        @Override
+        public String[] getItem(int position) {
+            return scores.get(position);
+        }
     }
 }

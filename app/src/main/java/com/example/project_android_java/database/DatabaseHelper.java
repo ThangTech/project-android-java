@@ -19,7 +19,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "DatabaseHelper";
     private static final String DB_NAME = "millionaire.db";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
 
     public static final String TABLE_QUESTIONS = "questions";
     public static final String TABLE_LEADERBOARD = "leaderboard";
@@ -33,6 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_CORRECT = "correct";
     private static final String COL_LEVEL = "level";
     private static final String COL_CATEGORY = "category";
+    private static final String COL_EVIDENCE = "evidence";
 
     private static final String COL_PLAYER_NAME = "player_name";
     private static final String COL_SCORE = "score";
@@ -53,9 +54,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_QUESTIONS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_LEADERBOARD);
-        createTables(db);
+        if (oldVersion < 2) {
+            migrateToV2(db);
+        }
+    }
+
+    private void migrateToV2(SQLiteDatabase db) {
+        db.execSQL("ALTER TABLE " + TABLE_QUESTIONS + " ADD COLUMN " + COL_EVIDENCE + " TEXT");
     }
 
     private void createTables(SQLiteDatabase db) {
@@ -68,7 +73,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_OPTION_D + " TEXT NOT NULL, " +
                 COL_CORRECT + " INTEGER NOT NULL, " +
                 COL_LEVEL + " INTEGER NOT NULL, " +
-                COL_CATEGORY + " TEXT" +
+                COL_CATEGORY + " TEXT, " +
+                COL_EVIDENCE + " TEXT" +
                 ")";
 
         String createLeaderboardTable = "CREATE TABLE " + TABLE_LEADERBOARD + " (" +
@@ -115,6 +121,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     values.put(COL_CORRECT, obj.getInt("correct"));
                     values.put(COL_LEVEL, obj.getInt("level"));
                     values.put(COL_CATEGORY, obj.optString("category", "General"));
+                    values.put(COL_EVIDENCE, obj.optString("evidence", ""));
                     questionList.add(values);
                 }
 
@@ -238,7 +245,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     cursor.getString(cursor.getColumnIndexOrThrow(COL_OPTION_D)),
                     cursor.getString(cursor.getColumnIndexOrThrow(COL_CORRECT)),
                     cursor.getString(cursor.getColumnIndexOrThrow(COL_LEVEL)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(COL_CATEGORY))
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_CATEGORY)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_EVIDENCE))
             };
             questions.add(q);
         }

@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.os.VibratorManager;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -42,7 +43,7 @@ public class GameActivity extends AppCompatActivity {
     private ProgressBar pbTimer;
     private Button[] answerButtons;
     private Button btnHideLadder;
-    private ImageButton btnStopGame, btnHelp5050, btnHelpAudience, btnHelpPhone;
+    private ImageButton btnStopGame, btnHelp5050, btnHelpAudience, btnHelpPhone, btnHelpSage;
     private LinearLayout llMoneyContainer;
     private TextView[] ladderViews = new TextView[15];
 
@@ -88,6 +89,7 @@ public class GameActivity extends AppCompatActivity {
         btnHelp5050 = findViewById(R.id.btn_help_5050);
         btnHelpAudience = findViewById(R.id.btn_help_audience);
         btnHelpPhone = findViewById(R.id.btn_help_phone);
+        btnHelpSage = findViewById(R.id.btn_help_sage);
 
         llMoneyContainer = findViewById(R.id.ll_money_container);
 
@@ -110,6 +112,7 @@ public class GameActivity extends AppCompatActivity {
         btnHelp5050.setOnClickListener(v -> onHelp5050());
         btnHelpAudience.setOnClickListener(v -> onHelpAudience());
         btnHelpPhone.setOnClickListener(v -> onHelpCall());
+        btnHelpSage.setOnClickListener(v -> onHelpSage());
     }
 
     private void initGame() {
@@ -234,6 +237,8 @@ public class GameActivity extends AppCompatActivity {
         tvQuestionHeader.setText("CÂU HỎI SỐ: " + (gameManager.getCurrentIndex() + 1));
         tvCurrentMoney.setText(formatMoney(gameManager.getSecureMoney()));
         
+        checkShowSageHelp();
+        
         startTimer();
     }
 
@@ -285,11 +290,41 @@ public class GameActivity extends AppCompatActivity {
                 int correct = gameManager.getCorrectIndex();
                 answerButtons[correct].setBackgroundResource(R.drawable.btn_hex_green);
                 answerButtons[correct].setBackgroundTintList(null);
-                finishGameWithMoney();
+                showExplanationAndFinish();
             });
         } else {
-            finishGameWithMoney();
+            showExplanationAndFinish();
         }
+    }
+
+    private void showExplanationAndFinish() {
+        Question q = gameManager.getCurrentQuestion();
+        String correctAnswer = q.getOptions()[q.getCorrectAnswerIndex()];
+        String evidence = q.getEvidence();
+        
+        if (evidence == null || evidence.isEmpty()) {
+            evidence = "Không có thông tin bổ sung cho câu hỏi này.";
+        }
+
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_explanation, null);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setCancelable(false)
+                .create();
+
+        TextView tvCorrectAnswer = dialogView.findViewById(R.id.tv_correct_answer);
+        TextView tvEvidence = dialogView.findViewById(R.id.tv_evidence);
+        Button btnContinue = dialogView.findViewById(R.id.btn_continue);
+
+        tvCorrectAnswer.setText("Đáp án đúng: " + correctAnswer);
+        tvEvidence.setText(evidence);
+
+        btnContinue.setOnClickListener(v -> {
+            dialog.dismiss();
+            finishGameWithMoney();
+        });
+
+        dialog.show();
     }
 
     private void finishGameWithMoney() {
@@ -387,8 +422,33 @@ public class GameActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void onHelpSage() {
+        if (gameManager.isUsedSage()) return;
+        gameManager.useSage();
+        btnHelpSage.setImageResource(R.drawable.tg_nha_thong_thai_2);
+        btnHelpSage.setEnabled(false);
+
+        Intent intent = new Intent(this, HelpSageActivity.class);
+        intent.putExtra("QUESTION_TEXT", gameManager.getCurrentQuestion().getQuestionText());
+        intent.putExtra("QUESTION_OPTIONS", gameManager.getCurrentQuestion().getOptions());
+        intent.putExtra("CORRECT_INDEX", gameManager.getCorrectIndex());
+        intent.putExtra("EVIDENCE", gameManager.getCurrentQuestion().getEvidence());
+        startActivity(intent);
+    }
+
     private int dp(int dp) { return Math.round(dp * getResources().getDisplayMetrics().density); }
     public static String formatMoney(long amount) { return String.format("%,d", amount).replace(',', '.') + " đ"; }
+
+    private void checkShowSageHelp() {
+        if (gameManager.getCurrentIndex() == 5 && !gameManager.isUsedSage()) {
+            btnHelpSage.setVisibility(View.VISIBLE);
+            new AlertDialog.Builder(this)
+                    .setTitle("Quyền trợ giúp mới!")
+                    .setMessage("Bạn đã mở khóa quyền trợ giúp NHÀ THÔNG THÁI! Nhấn vào biểu tượng để nhận lời khuyên từ các bậc thầy.")
+                    .setPositiveButton("OK", null)
+                    .show();
+        }
+    }
 
     private void vibrateCorrect() {
         if (vibrator != null && vibrator.hasVibrator()) {
