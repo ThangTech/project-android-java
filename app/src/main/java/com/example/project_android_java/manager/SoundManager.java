@@ -2,10 +2,14 @@ package com.example.project_android_java.manager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
+import android.util.Log;
 
 import com.example.project_android_java.R;
+import java.io.IOException;
 
 public class SoundManager {
 
@@ -26,8 +30,10 @@ public class SoundManager {
 
     private MediaPlayer introPlayer;
     private MediaPlayer backgroundPlayer;
+    private MediaPlayer[] backgroundPlayers;
     private MediaPlayer readyPlayer;
     private MediaPlayer questionPlayer;
+    private MediaPlayer[] questionPlayers;
 
     private SoundManager(Context context) {
         this.context = context.getApplicationContext();
@@ -42,7 +48,24 @@ public class SoundManager {
     }
 
     public void initSoundPool() {
-        soundPool = new SoundPool(10, android.media.AudioManager.STREAM_MUSIC, 0);
+        if (soundPool != null) {
+            soundPool.release();
+        }
+        
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        int maxStreams = 30;
+        
+        AudioAttributes attributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
+        
+        soundPool = new SoundPool(maxStreams, AudioManager.STREAM_MUSIC, 0);
+        soundPool.setOnLoadCompleteListener((soundPool, sampleId, status) -> {
+            if (status != 0) {
+                android.util.Log.w("SoundManager", "Failed to load sound: " + sampleId);
+            }
+        });
         
         soundCorrect = soundPool.load(context, R.raw.cau_tra_loi_dung, 1);
         soundWrong = soundPool.load(context, R.raw.cau_1_5_sai, 1);
@@ -85,6 +108,28 @@ public class SoundManager {
         
         introPlayer = MediaPlayer.create(context, R.raw.gioi_thieu_luat_choi);
         readyPlayer = MediaPlayer.create(context, R.raw.nguoi_choi_da_san_sang);
+        
+        backgroundPlayers = new MediaPlayer[11];
+        int[] backgroundResIds = {
+            R.raw.cau_1_5, R.raw.cau_6, R.raw.cau_7, R.raw.cau_8, R.raw.cau_9, R.raw.cau_10,
+            R.raw.cau_11, R.raw.cau_12, R.raw.cau_13, R.raw.cau_14, R.raw.cau_15
+        };
+        for (int i = 0; i < 11; i++) {
+            backgroundPlayers[i] = MediaPlayer.create(context, backgroundResIds[i]);
+            if (backgroundPlayers[i] != null) {
+                backgroundPlayers[i].setLooping(true);
+            }
+        }
+        
+        questionPlayers = new MediaPlayer[15];
+        int[] questionResIds = {
+            R.raw.cau_hoi_dau_tien, R.raw.cau_hoi_so_2, R.raw.cau_hoi_so_3, R.raw.cau_hoi_so_4, R.raw.cau_hoi_so_5,
+            R.raw.cau_hoi_so_6, R.raw.cau_hoi_so_7, R.raw.cau_hoi_so_8, R.raw.cau_hoi_so_9, R.raw.cau_hoi_so_10,
+            R.raw.cau_hoi_so_11, R.raw.cau_hoi_so_12, R.raw.cau_hoi_so_13, R.raw.cau_hoi_so_14, R.raw.cau_hoi_so_15
+        };
+        for (int i = 0; i < 15; i++) {
+            questionPlayers[i] = MediaPlayer.create(context, questionResIds[i]);
+        }
     }
 
     public void playCorrect() {
@@ -247,34 +292,22 @@ public class SoundManager {
             return;
         }
         
-        int resId = 0;
-        switch (questionNumber) {
-            case 1: resId = R.raw.cau_hoi_dau_tien; break;
-            case 2: resId = R.raw.cau_hoi_so_2; break;
-            case 3: resId = R.raw.cau_hoi_so_3; break;
-            case 4: resId = R.raw.cau_hoi_so_4; break;
-            case 5: resId = R.raw.cau_hoi_so_5; break;
-            case 6: resId = R.raw.cau_hoi_so_6; break;
-            case 7: resId = R.raw.cau_hoi_so_7; break;
-            case 8: resId = R.raw.cau_hoi_so_8; break;
-            case 9: resId = R.raw.cau_hoi_so_9; break;
-            case 10: resId = R.raw.cau_hoi_so_10; break;
-            case 11: resId = R.raw.cau_hoi_so_11; break;
-            case 12: resId = R.raw.cau_hoi_so_12; break;
-            case 13: resId = R.raw.cau_hoi_so_13; break;
-            case 14: resId = R.raw.cau_hoi_so_14; break;
-            case 15: resId = R.raw.cau_hoi_so_15; break;
-        }
-        
-        if (resId != 0) {
-            questionPlayer = MediaPlayer.create(context, resId);
+        if (questionNumber >= 1 && questionNumber <= 15) {
+            questionPlayer = questionPlayers[questionNumber - 1];
             if (questionPlayer != null) {
+                try {
+                    questionPlayer.seekTo(0);
+                } catch (IllegalStateException e) {
+                    // Handle if player is in invalid state
+                }
                 questionPlayer.setOnCompletionListener(mp -> {
                     if (onComplete != null) {
                         onComplete.run();
                     }
                 });
                 questionPlayer.start();
+            } else if (onComplete != null) {
+                onComplete.run();
             }
         } else if (onComplete != null) {
             onComplete.run();
@@ -292,22 +325,51 @@ public class SoundManager {
     }
 
     public void playBackground15() {
+        playBackground(1);
+    }
+    
+    public void playBackground(int questionNumber) {
         if (!isSoundEnabled) return;
         
-        if (backgroundPlayer != null) {
-            if (backgroundPlayer.isPlaying()) {
-                backgroundPlayer.stop();
+        int resId;
+        if (questionNumber >= 1 && questionNumber <= 5) {
+            resId = R.raw.cau_1_5;
+        } else if (questionNumber >= 6 && questionNumber <= 15) {
+            switch (questionNumber) {
+                case 6: resId = R.raw.cau_6; break;
+                case 7: resId = R.raw.cau_7; break;
+                case 8: resId = R.raw.cau_7; break;
+                case 9: resId = R.raw.cau_9; break;
+                case 10: resId = R.raw.cau_10; break;
+                case 11: resId = R.raw.cau_11; break;
+                case 12: resId = R.raw.cau_12; break;
+                case 13: resId = R.raw.cau_13; break;
+                case 14: resId = R.raw.cau_14; break;
+                case 15: resId = R.raw.cau_15; break;
+                default: return;
             }
-            backgroundPlayer.release();
+        } else {
+            return;
         }
         
-        backgroundPlayer = MediaPlayer.create(context, R.raw.cau_1_5);
-        if (backgroundPlayer != null) {
-            backgroundPlayer.setLooping(true);
-            backgroundPlayer.start();
+        stopBackground();
+        
+        backgroundPlayer = new MediaPlayer();
+        try {
+            android.content.res.AssetFileDescriptor afd = context.getResources().openRawResourceFd(resId);
+            if (afd != null) {
+                backgroundPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                afd.close();
+                backgroundPlayer.setLooping(true);
+                backgroundPlayer.setVolume(0.6f, 0.6f);
+                backgroundPlayer.setOnPreparedListener(mp -> mp.start());
+                backgroundPlayer.prepareAsync();
+            }
+        } catch (Exception e) {
+            Log.e("SoundManager", "Error playing background", e);
         }
     }
-
+    
     public void stopBackground() {
         if (backgroundPlayer != null) {
             try {
@@ -317,15 +379,60 @@ public class SoundManager {
             } catch (IllegalStateException e) {
                 // Player already stopped
             }
-            backgroundPlayer.release();
-            backgroundPlayer = null;
         }
     }
 
     public void playCorrect15() {
-        stopBackground();
+        if (backgroundPlayer != null) {
+            try {
+                if (backgroundPlayer.isPlaying()) {
+                    backgroundPlayer.stop();
+                }
+                backgroundPlayer.reset();
+            } catch (IllegalStateException e) {
+                backgroundPlayer = new MediaPlayer();
+            }
+        }
         if (isSoundEnabled && soundCorrect15 != 0) {
             soundPool.play(soundCorrect15, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+    }
+    
+    public void playCorrectForQuestion(int questionNumber, Runnable onComplete) {
+        stopBackground();
+        
+        if (!isSoundEnabled) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
+        
+        int resId;
+        switch (questionNumber) {
+            case 6: resId = R.raw.cau_6_dung; break;
+            case 7: resId = R.raw.cau_7_dung; break;
+            case 8: resId = R.raw.cau_7_dung; break;
+            case 9: resId = R.raw.cau_7_dung; break;
+            case 10: resId = R.raw.cau_10_dung; break;
+            case 11: resId = R.raw.cau_11_dung; break;
+            case 12: resId = R.raw.cau_12_dung; break;
+            case 13: resId = R.raw.cau_12_dung; break;
+            case 14: resId = R.raw.cau_12_dung; break;
+            case 15: resId = R.raw.cau_15_dung; break;
+            default:
+                if (onComplete != null) onComplete.run();
+                return;
+        }
+        
+        MediaPlayer player = MediaPlayer.create(context, resId);
+        if (player != null) {
+            player.setOnCompletionListener(mp -> {
+                if (onComplete != null) {
+                    onComplete.run();
+                }
+            });
+            player.start();
+        } else if (onComplete != null) {
+            onComplete.run();
         }
     }
 
@@ -420,6 +527,42 @@ public class SoundManager {
             soundPool.play(soundWrong15, 1.0f, 1.0f, 1, 0, 1.0f);
         }
     }
+    
+    public void playWrongForQuestion(int questionNumber) {
+        stopBackground();
+        
+        if (!isSoundEnabled) return;
+        
+        int resId;
+        switch (questionNumber) {
+            case 6: resId = R.raw.cau_6_sai; break;
+            case 7: resId = R.raw.cau_7_sai; break;
+            case 8: resId = R.raw.cau_7_sai; break;
+            case 9: resId = R.raw.cau_7_sai; break;
+            case 10: resId = R.raw.cau_10_sai; break;
+            case 11: resId = R.raw.cau_11_sai; break;
+            case 12: resId = R.raw.cau_12_sai; break;
+            case 13: resId = R.raw.cau_12_sai; break;
+            case 14: resId = R.raw.cau_12_sai; break;
+            case 15: resId = R.raw.cau_15_sai; break;
+            default: return;
+        }
+        
+        MediaPlayer player = MediaPlayer.create(context, resId);
+        if (player != null) {
+            player.start();
+        }
+    }
+    
+    public void playDungLuotChoi() {
+        stopBackground();
+        if (!isSoundEnabled) return;
+        
+        MediaPlayer player = MediaPlayer.create(context, R.raw.dung_luot_choi);
+        if (player != null) {
+            player.start();
+        }
+    }
 
     public void releaseSoundPool() {
         if (soundPool != null) {
@@ -457,5 +600,25 @@ public class SoundManager {
     public void release() {
         releaseSoundPool();
         stopIntroMusic();
+        if (backgroundPlayers != null) {
+            for (MediaPlayer mp : backgroundPlayers) {
+                if (mp != null) {
+                    try {
+                        if (mp.isPlaying()) mp.stop();
+                        mp.release();
+                    } catch (Exception e) {}
+                }
+            }
+        }
+        if (questionPlayers != null) {
+            for (MediaPlayer mp : questionPlayers) {
+                if (mp != null) {
+                    try {
+                        if (mp.isPlaying()) mp.stop();
+                        mp.release();
+                    } catch (Exception e) {}
+                }
+            }
+        }
     }
 }

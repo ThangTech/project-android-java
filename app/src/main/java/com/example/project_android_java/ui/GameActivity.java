@@ -54,6 +54,8 @@ public class GameActivity extends AppCompatActivity {
     private CountDownTimer countDownTimer;
     private final Handler handler = new Handler();
     private boolean isAnswerProcessing = false;
+    private boolean isPaused = false;
+    private long remainingTime = 30000;
     private final String[] OPTION_LABELS = {"A. ", "B. ", "C. ", "D. "};
     private Vibrator vibrator;
 
@@ -233,7 +235,8 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void showQuestion() {
-        isAnswerProcessing = false; 
+        isAnswerProcessing = false;
+        remainingTime = 30000;
         Question q = gameManager.getCurrentQuestion();
         tvQuestion.setText(q.getQuestionText());
         String[] options = q.getOptions();
@@ -253,21 +256,24 @@ public class GameActivity extends AppCompatActivity {
         
         if (currentQ <= 5) {
             soundManager.playQuestion(currentQ, () -> {
-                runOnUiThread(() -> {
-                    soundManager.playBackground15();
-                });
+                runOnUiThread(() -> soundManager.playBackground15());
             });
         } else {
-            soundManager.playQuestion(currentQ);
+            soundManager.playQuestion(currentQ, () -> {
+                runOnUiThread(() -> soundManager.playBackground(currentQ));
+            });
         }
         
         startTimer();
     }
 
     private void startTimer() {
+        isPaused = false;
         if (countDownTimer != null) countDownTimer.cancel();
-        countDownTimer = new CountDownTimer(30000, 100) {
+        countDownTimer = new CountDownTimer(remainingTime, 100) {
             public void onTick(long millisUntilFinished) {
+                if (isPaused) return;
+                remainingTime = millisUntilFinished;
                 int seconds = (int) (millisUntilFinished / 1000);
                 tvTimer.setText(String.valueOf(seconds));
                 pbTimer.setProgress(seconds);
@@ -281,6 +287,18 @@ public class GameActivity extends AppCompatActivity {
                 onWrong(-1);
             }
         }.start();
+    }
+    
+    private void pauseTimer() {
+        isPaused = true;
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+    }
+    
+    private void resumeTimer() {
+        isPaused = false;
+        startTimer();
     }
 
     private void onAnswerSelected(int selectedIndex) {
@@ -324,8 +342,12 @@ public class GameActivity extends AppCompatActivity {
                     });
                 });
             } else {
-                gameManager.advance();
-                showMoneyLadderBriefly();
+                soundManager.playCorrectForQuestion(currentQ, () -> {
+                    runOnUiThread(() -> {
+                        gameManager.advance();
+                        showMoneyLadderBriefly();
+                    });
+                });
             }
         });
     }
@@ -343,6 +365,8 @@ public class GameActivity extends AppCompatActivity {
                 int currentQ = gameManager.getCurrentIndex() + 1;
                 if (currentQ <= 5) {
                     soundManager.playWrong15();
+                } else {
+                    soundManager.playDungLuotChoi();
                 }
                 
                 showExplanationAndFinish();
@@ -471,9 +495,7 @@ public class GameActivity extends AppCompatActivity {
         soundManager.stopBackground();
         gameManager.useAudience();
         
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-        }
+        pauseTimer();
         
         soundManager.playAudienceWithCallback(() -> {
             runOnUiThread(() -> {
@@ -485,7 +507,7 @@ public class GameActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, HelpAudienceActivity.class);
                 intent.putExtra("CORRECT_INDEX", gameManager.getCorrectIndex());
                 intent.putExtra("QUESTION_INDEX", gameManager.getCurrentIndex());
-                startActivity(intent);
+                startActivityForResult(intent, 101);
             });
         });
     }
@@ -494,6 +516,8 @@ public class GameActivity extends AppCompatActivity {
         if (gameManager.isUsedPhone()) return;
         soundManager.stopBackground();
         gameManager.usePhone();
+        
+        pauseTimer();
         
         soundManager.playPhoneWithCallback(() -> {
             runOnUiThread(() -> {
@@ -505,7 +529,7 @@ public class GameActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, HelpCallActivity.class);
                 intent.putExtra("CORRECT_INDEX", gameManager.getCorrectIndex());
                 intent.putExtra("QUESTION_INDEX", gameManager.getCurrentIndex());
-                startActivity(intent);
+                startActivityForResult(intent, 100);
             });
         });
     }
@@ -573,7 +597,13 @@ public class GameActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (isAnswerProcessing && gameManager.getState() == GameManager.State.PLAYING) {
-            startTimer();
+            resumeTimer();
         }
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        resumeTimer();
     }
 }
