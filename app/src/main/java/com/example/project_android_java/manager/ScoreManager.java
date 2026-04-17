@@ -25,15 +25,27 @@ public class ScoreManager {
     }
 
     public long saveScore(String playerName, long score, int questionsCorrect) {
-        return dbHelper.insertScore(playerName, score, questionsCorrect);
+        return dbHelper.insertScore(-1, playerName, score, questionsCorrect);
+    }
+
+    public long saveScore(int userId, String playerName, long score, int questionsCorrect) {
+        return dbHelper.insertScore(userId, playerName, score, questionsCorrect);
     }
 
     public List<String[]> getTopScores(int limit) {
         return dbHelper.getTopScores(limit);
     }
 
+    public List<String[]> getTopScoresByUser(int limit, int userId) {
+        return dbHelper.getTopScores(limit, userId);
+    }
+
     public long getHighScore() {
         return dbHelper.getHighScore();
+    }
+
+    public long getHighScoreByUser(int userId) {
+        return dbHelper.getHighScoreByUser(userId);
     }
 
     public boolean isNewHighScore(long score) {

@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.project_android_java.R;
+import com.example.project_android_java.manager.AuthManager;
 import com.example.project_android_java.manager.ScoreManager;
 
 import java.util.ArrayList;
@@ -26,6 +27,10 @@ public class RankActivity extends AppCompatActivity {
     private TextView tvHighScore;
     private Button btnBack;
     private ScoreManager scoreManager;
+    private AuthManager authManager;
+    private List<String[]> allScores;
+    private List<String[]> myScores;
+    private int currentFilter = 0; // 0 = all, 1 = mine
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +38,7 @@ public class RankActivity extends AppCompatActivity {
         setContentView(R.layout.activity_rank);
 
         scoreManager = ScoreManager.getInstance(this);
+        authManager = AuthManager.getInstance(this);
         initViews();
         loadLeaderboard();
     }
@@ -41,23 +47,56 @@ public class RankActivity extends AppCompatActivity {
         lvRank = findViewById(R.id.lv_rank);
         tvHighScore = findViewById(R.id.tv_high_score);
         btnBack = findViewById(R.id.btn_back);
+        Button btnAll = findViewById(R.id.btn_all);
+        Button btnMine = findViewById(R.id.btn_mine);
 
         btnBack.setOnClickListener(v -> finish());
+
+        btnAll.setOnClickListener(v -> {
+            currentFilter = 0;
+            updateFilterUI(btnAll, btnMine);
+            loadLeaderboard();
+        });
+
+        btnMine.setOnClickListener(v -> {
+            if (!authManager.isLoggedIn()) {
+                Toast.makeText(this, "Vui lòng đăng nhập để xem điểm của bạn", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            currentFilter = 1;
+            updateFilterUI(btnAll, btnMine);
+            loadLeaderboard();
+        });
+    }
+
+    private void updateFilterUI(Button selected, Button unselected) {
+        selected.setBackgroundResource(R.drawable.btn_rect_purple);
+        unselected.setBackgroundResource(R.drawable.btn_round_orange);
     }
 
     private void loadLeaderboard() {
-        long highScore = scoreManager.getHighScore();
-        tvHighScore.setText("Điểm cao nhất: " + GameActivity.formatMoney(highScore));
+        if (currentFilter == 1 && authManager.isLoggedIn()) {
+            int userId = authManager.getCurrentUserId();
+            myScores = scoreManager.getTopScoresByUser(20, userId);
+            long highScore = scoreManager.getHighScoreByUser(userId);
+            tvHighScore.setText("Điểm cao nhất của bạn: " + GameActivity.formatMoney(highScore));
 
-        List<String[]> topScores = scoreManager.getTopScores(20);
+            if (myScores.isEmpty()) {
+                Toast.makeText(this, "Bạn chưa có điểm nào!", Toast.LENGTH_SHORT).show();
+            }
+            RankAdapter adapter = new RankAdapter(this, myScores);
+            lvRank.setAdapter(adapter);
+        } else {
+            allScores = scoreManager.getTopScores(20);
+            long highScore = scoreManager.getHighScore();
+            tvHighScore.setText("Điểm cao nhất: " + GameActivity.formatMoney(highScore));
 
-        if (topScores.isEmpty()) {
-            Toast.makeText(this, "Chưa có điểm!", Toast.LENGTH_SHORT).show();
-            return;
+            if (allScores.isEmpty()) {
+                Toast.makeText(this, "Chưa có điểm!", Toast.LENGTH_SHORT).show();
+            }
+            RankAdapter adapter = new RankAdapter(this, allScores);
+            lvRank.setAdapter(adapter);
         }
-
-        RankAdapter adapter = new RankAdapter(this, topScores);
-        lvRank.setAdapter(adapter);
     }
 
     static class RankAdapter extends ArrayAdapter<String[]> {

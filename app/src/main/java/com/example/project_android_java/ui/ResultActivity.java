@@ -2,6 +2,8 @@ package com.example.project_android_java.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -9,9 +11,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.project_android_java.R;
+import com.example.project_android_java.manager.AuthManager;
 import com.example.project_android_java.manager.ScoreManager;
 
 public class ResultActivity extends AppCompatActivity {
+
+    private static final String TAG = "ResultActivity";
 
     private TextView tvResultTitle, tvMoneyEarned;
     private EditText edtPlayerName;
@@ -19,6 +24,8 @@ public class ResultActivity extends AppCompatActivity {
     private long finalScore = 0;
     private int questionsCorrect = 0;
     private ScoreManager scoreManager;
+    private AuthManager authManager;
+    private boolean isLoggedIn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,8 +33,20 @@ public class ResultActivity extends AppCompatActivity {
         setContentView(R.layout.activity_result);
 
         scoreManager = ScoreManager.getInstance(this);
+        authManager = AuthManager.getInstance(this);
+        isLoggedIn = authManager.isLoggedIn();
+
         initViews();
         displayResult();
+        prepareForUser();
+    }
+
+    private void prepareForUser() {
+        if (isLoggedIn) {
+            String username = authManager.getCurrentUsername();
+            edtPlayerName.setText(username);
+            edtPlayerName.setEnabled(false);
+        }
     }
 
     private void initViews() {
@@ -57,6 +76,22 @@ public class ResultActivity extends AppCompatActivity {
         }
 
         tvMoneyEarned.setText(GameActivity.formatMoney(finalScore));
+
+        // Auto-save for logged-in users
+        if (isLoggedIn) {
+            edtPlayerName.setVisibility(View.GONE);
+            findViewById(R.id.btn_save_score).setVisibility(View.GONE);
+            autoSaveScore();
+        }
+    }
+
+    private void autoSaveScore() {
+        String name = authManager.getCurrentUsername();
+        int userId = authManager.getCurrentUserId();
+        long result = scoreManager.saveScore(userId, name, finalScore, questionsCorrect);
+        if (result > 0) {
+            Toast.makeText(this, "Da luu diem cua " + name + ": " + GameActivity.formatMoney(finalScore), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void savePlayerScore() {
@@ -66,7 +101,18 @@ public class ResultActivity extends AppCompatActivity {
             return;
         }
 
-        long result = scoreManager.saveScore(name, finalScore, questionsCorrect);
+        Log.d(TAG, "savePlayerScore: isLoggedIn=" + isLoggedIn + ", name=" + name + ", score=" + finalScore);
+
+        long result;
+        if (isLoggedIn) {
+            int userId = authManager.getCurrentUserId();
+            result = scoreManager.saveScore(userId, name, finalScore, questionsCorrect);
+        } else {
+            result = scoreManager.saveScore(name, finalScore, questionsCorrect);
+        }
+
+        Log.d(TAG, "savePlayerScore result: " + result);
+
         if (result > 0) {
             Toast.makeText(this, "Da luu diem cua " + name + ": " + GameActivity.formatMoney(finalScore), Toast.LENGTH_LONG).show();
         } else {

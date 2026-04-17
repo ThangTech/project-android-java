@@ -19,10 +19,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "DatabaseHelper";
     private static final String DB_NAME = "millionaire.db";
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 3;
 
     public static final String TABLE_QUESTIONS = "questions";
     public static final String TABLE_LEADERBOARD = "leaderboard";
+    public static final String TABLE_USERS = "users";
+
+    public static final String COL_USER_ID = "user_id";
 
     private static final String COL_ID = "id";
     private static final String COL_QUESTION = "question";
@@ -39,6 +42,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_SCORE = "score";
     private static final String COL_QUESTIONS_CORRECT = "questions_correct";
     private static final String COL_DATE_PLAYED = "date_played";
+
+    // Users table columns
+    private static final String COL_USERNAME = "username";
+    private static final String COL_PASSWORD_HASH = "password_hash";
+    private static final String COL_PASSWORD_SALT = "password_salt";
+    private static final String COL_CREATED_AT = "created_at";
 
     private final Context context;
 
@@ -57,10 +66,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 2) {
             migrateToV2(db);
         }
+        if (oldVersion < 3) {
+            migrateToV3(db);
+        }
     }
 
     private void migrateToV2(SQLiteDatabase db) {
         db.execSQL("ALTER TABLE " + TABLE_QUESTIONS + " ADD COLUMN " + COL_EVIDENCE + " TEXT");
+    }
+
+    private void migrateToV3(SQLiteDatabase db) {
+        String createUsersTable = "CREATE TABLE " + TABLE_USERS + " (" +
+                COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_USERNAME + " TEXT NOT NULL UNIQUE, " +
+                COL_PASSWORD_HASH + " TEXT NOT NULL, " +
+                COL_PASSWORD_SALT + " TEXT NOT NULL, " +
+                COL_CREATED_AT + " TEXT NOT NULL" +
+                ")";
+        db.execSQL(createUsersTable);
+        db.execSQL("ALTER TABLE " + TABLE_LEADERBOARD + " ADD COLUMN " + COL_USER_ID + " INTEGER REFERENCES " + TABLE_USERS + "(" + COL_ID + ")");
+        Log.d(TAG, "Migrated to v3: users table created, user_id added to leaderboard");
     }
 
     private void createTables(SQLiteDatabase db) {
@@ -79,14 +104,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         String createLeaderboardTable = "CREATE TABLE " + TABLE_LEADERBOARD + " (" +
                 COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_USER_ID + " INTEGER REFERENCES " + TABLE_USERS + "(" + COL_ID + "), " +
                 COL_PLAYER_NAME + " TEXT NOT NULL, " +
                 COL_SCORE + " INTEGER NOT NULL, " +
                 COL_QUESTIONS_CORRECT + " INTEGER NOT NULL, " +
                 COL_DATE_PLAYED + " TEXT NOT NULL" +
                 ")";
 
+        String createUsersTable = "CREATE TABLE " + TABLE_USERS + " (" +
+                COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_USERNAME + " TEXT NOT NULL UNIQUE, " +
+                COL_PASSWORD_HASH + " TEXT NOT NULL, " +
+                COL_PASSWORD_SALT + " TEXT NOT NULL, " +
+                COL_CREATED_AT + " TEXT NOT NULL" +
+                ")";
+
         db.execSQL(createQuestionsTable);
         db.execSQL(createLeaderboardTable);
+        db.execSQL(createUsersTable);
 
         Log.d(TAG, "Tables created successfully");
     }
@@ -190,38 +225,133 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public long insertScore(String playerName, long score, int questionsCorrect) {
+        return insertScore(-1, playerName, score, questionsCorrect);
+    }
+
+    public long insertScore(int userId, String playerName, long score, int questionsCorrect) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+        if (userId > 0) {
+            values.put(COL_USER_ID, userId);
+        }
         values.put(COL_PLAYER_NAME, playerName);
         values.put(COL_SCORE, score);
         values.put(COL_QUESTIONS_CORRECT, questionsCorrect);
         values.put(COL_DATE_PLAYED, String.valueOf(System.currentTimeMillis()));
-        return db.insert(TABLE_LEADERBOARD, null, values);
+        long result = db.insert(TABLE_LEADERBOARD, null, values);
+        Log.d(TAG, "insertScore: userId=" + userId + ", name=" + playerName + ", score=" + score + ", result=" + result);
+        return result;
+    }
+
+    public int insertUser(String username, String passwordHash, String passwordSalt) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_USERNAME, username);
+        values.put(COL_PASSWORD_HASH, passwordHash);
+        values.put(COL_PASSWORD_SALT, passwordSalt);
+        values.put(COL_CREATED_AT, String.valueOf(System.currentTimeMillis()));
+        return (int) db.insert(TABLE_USERS, null, values);
+    }
+
+    public int getUserIdByUsername(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS, new String[]{COL_ID}, COL_USERNAME + " = ?",
+                new String[]{username}, null, null, null);
+        int userId = -1;
+        if (cursor.moveToFirst()) {
+            userId = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID));
+        }
+        cursor.close();
+        return userId;
+    }
+
+    public String[] getUserCredentials(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS,
+                new String[]{COL_ID, COL_PASSWORD_HASH, COL_PASSWORD_SALT},
+                COL_USERNAME + " = ?",
+                new String[]{username}, null, null, null);
+        String[] result = null;
+        if (cursor.moveToFirst()) {
+            result = new String[]{
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_PASSWORD_HASH)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_PASSWORD_SALT))
+            };
+        }
+        cursor.close();
+        return result;
+    }
+
+    public String getUsernameById(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS, new String[]{COL_USERNAME}, COL_ID + " = ?",
+                new String[]{String.valueOf(userId)}, null, null, null);
+        String username = null;
+        if (cursor.moveToFirst()) {
+            username = cursor.getString(cursor.getColumnIndexOrThrow(COL_USERNAME));
+        }
+        cursor.close();
+        return username;
     }
 
     public List<String[]> getTopScores(int limit) {
+        return getTopScores(limit, -1);
+    }
+
+    public List<String[]> getTopScores(int limit, int filterUserId) {
         List<String[]> scores = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT * FROM " + TABLE_LEADERBOARD +
-                " ORDER BY " + COL_SCORE + " DESC LIMIT ?";
-        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(limit)});
-
-        while (cursor.moveToNext()) {
-            String[] s = {
-                    cursor.getString(cursor.getColumnIndexOrThrow(COL_PLAYER_NAME)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(COL_SCORE)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(COL_QUESTIONS_CORRECT)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(COL_DATE_PLAYED))
-            };
-            scores.add(s);
+        String query;
+        if (filterUserId > 0) {
+            query = "SELECT * FROM " + TABLE_LEADERBOARD +
+                    " WHERE " + COL_USER_ID + " = ?" +
+                    " ORDER BY " + COL_SCORE + " DESC LIMIT ?";
+            Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(filterUserId), String.valueOf(limit)});
+            while (cursor.moveToNext()) {
+                String[] s = {
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_PLAYER_NAME)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_SCORE)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_QUESTIONS_CORRECT)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_DATE_PLAYED)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_USER_ID))
+                };
+                scores.add(s);
+            }
+            cursor.close();
+        } else {
+            query = "SELECT * FROM " + TABLE_LEADERBOARD +
+                    " ORDER BY " + COL_SCORE + " DESC LIMIT ?";
+            Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(limit)});
+            while (cursor.moveToNext()) {
+                String[] s = {
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_PLAYER_NAME)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_SCORE)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_QUESTIONS_CORRECT)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_DATE_PLAYED)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_USER_ID))
+                };
+                scores.add(s);
+            }
+            cursor.close();
         }
-        cursor.close();
         return scores;
     }
 
     public long getHighScore() {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT MAX(" + COL_SCORE + ") FROM " + TABLE_LEADERBOARD, null);
+        long highScore = 0;
+        if (cursor.moveToFirst()) {
+            highScore = cursor.getLong(0);
+        }
+        cursor.close();
+        return highScore;
+    }
+
+    public long getHighScoreByUser(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT MAX(" + COL_SCORE + ") FROM " + TABLE_LEADERBOARD + " WHERE " + COL_USER_ID + " = ?", new String[]{String.valueOf(userId)});
         long highScore = 0;
         if (cursor.moveToFirst()) {
             highScore = cursor.getLong(0);

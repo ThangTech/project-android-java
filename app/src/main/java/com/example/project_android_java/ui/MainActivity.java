@@ -9,11 +9,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
 import com.example.project_android_java.R;
+import com.example.project_android_java.manager.AuthManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,6 +23,9 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton btnInfo, btnRank, btnSettings;
     private MediaPlayer introPlayer;
     private SharedPreferences prefs;
+    private AuthManager authManager;
+    private TextView tvWelcome;
+    private Button btnLogin, btnLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,8 +33,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         prefs = getSharedPreferences("GameSettings", Context.MODE_PRIVATE);
+        authManager = AuthManager.getInstance(this);
 
         initViews();
+        updateUserUI();
         setupClickListeners();
         playIntroMusic();
     }
@@ -39,6 +46,23 @@ public class MainActivity extends AppCompatActivity {
         btnInfo = findViewById(R.id.btn_info);
         btnRank = findViewById(R.id.btn_rank);
         btnSettings = findViewById(R.id.btn_settings);
+        tvWelcome = findViewById(R.id.tv_welcome);
+        btnLogin = findViewById(R.id.btn_login);
+        btnLogout = findViewById(R.id.btn_logout);
+    }
+
+    private void updateUserUI() {
+        if (authManager.isLoggedIn()) {
+            String username = authManager.getCurrentUsername();
+            tvWelcome.setText("Xin chào, " + username + "!");
+            tvWelcome.setVisibility(View.VISIBLE);
+            btnLogin.setVisibility(View.GONE);
+            btnLogout.setVisibility(View.VISIBLE);
+        } else {
+            tvWelcome.setVisibility(View.GONE);
+            btnLogin.setVisibility(View.VISIBLE);
+            btnLogout.setVisibility(View.GONE);
+        }
     }
 
     private void setupClickListeners() {
@@ -50,6 +74,20 @@ public class MainActivity extends AppCompatActivity {
         btnInfo.setOnClickListener(v -> showInfoDialog());
         btnRank.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RankActivity.class)));
         btnSettings.setOnClickListener(v -> showSettingsDialog());
+
+        btnLogin.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, LoginRegisterActivity.class)));
+
+        btnLogout.setOnClickListener(v -> {
+            new AlertDialog.Builder(this)
+                    .setTitle("Đăng xuất")
+                    .setMessage("Bạn có chắc muốn đăng xuất?")
+                    .setPositiveButton("Đăng xuất", (dialog, which) -> {
+                        authManager.logout();
+                        updateUserUI();
+                    })
+                    .setNegativeButton("Hủy", null)
+                    .show();
+        });
     }
 
     private void playIntroMusic() {

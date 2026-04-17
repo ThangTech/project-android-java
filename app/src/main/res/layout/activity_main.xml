@@ -22,6 +22,41 @@
 
     <Space
         android:layout_width="match_parent"
+        android:layout_height="8dp"/>
+
+    <TextView
+        android:id="@+id/tv_welcome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Xin chào, khách!"
+        android:textSize="16sp"
+        android:textColor="#FFD700"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/btn_login"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:text="Đăng nhập"
+        android:textSize="13sp"
+        android:textColor="#FFD700"
+        android:background="@android:color/transparent"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="160dp"
+        android:layout_height="40dp"
+        android:text="ĐĂNG XUẤT"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/btn_play_main"
+        android:stateListAnimator="@null"
+        android:visibility="gone"/>
+
+    <Space
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
 
