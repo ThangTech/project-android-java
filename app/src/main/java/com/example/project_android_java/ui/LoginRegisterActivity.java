@@ -69,6 +69,13 @@ public class LoginRegisterActivity extends AppCompatActivity {
             }
 
             if (isLoginMode) {
+                // Check admin login
+                if (username.equals("admin") && password.equals("admin123")) {
+                    Toast.makeText(this, "Đăng nhập Admin thành công!", Toast.LENGTH_SHORT).show();
+                    navigateToAdmin();
+                    return;
+                }
+
                 int userId = authManager.login(username, password);
                 if (userId > 0) {
                     Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
@@ -129,6 +136,13 @@ public class LoginRegisterActivity extends AppCompatActivity {
 
     private void navigateToMain() {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private void navigateToAdmin() {
+        Intent intent = new Intent(this, AdminActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

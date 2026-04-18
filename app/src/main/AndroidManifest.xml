@@ -58,6 +58,18 @@
             android:name=".ui.HistoryActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.AdminActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.QuestionManagementActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.StatisticsActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

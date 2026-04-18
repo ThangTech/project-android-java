@@ -360,6 +360,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return highScore;
     }
 
+    public int getUniquePlayersCount() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(DISTINCT " + COL_USER_ID + ") FROM " + TABLE_LEADERBOARD + " WHERE " + COL_USER_ID + " IS NOT NULL", null);
+        int count = 0;
+        if (cursor.moveToFirst()) {
+            count = cursor.getInt(0);
+        }
+        cursor.close();
+        return count;
+    }
+
     public List<String[]> getGameHistoryByUser(int userId) {
         List<String[]> history = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -409,6 +420,47 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         return questions;
+    }
+
+    public long insertQuestion(String question, String optionA, String optionB, String optionC, String optionD, int correct, int level, String category, String evidence) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_QUESTION, question);
+        values.put(COL_OPTION_A, optionA);
+        values.put(COL_OPTION_B, optionB);
+        values.put(COL_OPTION_C, optionC);
+        values.put(COL_OPTION_D, optionD);
+        values.put(COL_CORRECT, correct);
+        values.put(COL_LEVEL, level);
+        values.put(COL_CATEGORY, category);
+        values.put(COL_EVIDENCE, evidence);
+        long result = db.insert(TABLE_QUESTIONS, null, values);
+        Log.d(TAG, "insertQuestion: result=" + result);
+        return result;
+    }
+
+    public int updateQuestion(int id, String question, String optionA, String optionB, String optionC, String optionD, int correct, int level, String category, String evidence) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_QUESTION, question);
+        values.put(COL_OPTION_A, optionA);
+        values.put(COL_OPTION_B, optionB);
+        values.put(COL_OPTION_C, optionC);
+        values.put(COL_OPTION_D, optionD);
+        values.put(COL_CORRECT, correct);
+        values.put(COL_LEVEL, level);
+        values.put(COL_CATEGORY, category);
+        values.put(COL_EVIDENCE, evidence);
+        int rows = db.update(TABLE_QUESTIONS, values, COL_ID + " = ?", new String[]{String.valueOf(id)});
+        Log.d(TAG, "updateQuestion id=" + id + ": rows=" + rows);
+        return rows;
+    }
+
+    public int deleteQuestion(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rows = db.delete(TABLE_QUESTIONS, COL_ID + " = ?", new String[]{String.valueOf(id)});
+        Log.d(TAG, "deleteQuestion id=" + id + ": rows=" + rows);
+        return rows;
     }
 
     public void close() {

@@ -50,6 +50,11 @@ public class QuestionManager {
         }
     }
 
+    public void refreshQuestions() {
+        allQuestions = loadAllFromDatabase();
+        Log.d(TAG, "Refresh thành công: " + allQuestions.size() + " câu hỏi");
+    }
+
     private List<Question> loadAllFromDatabase() {
         List<Question> questions = new ArrayList<>();
         List<String[]> rawQuestions = dbHelper.getAllQuestions();

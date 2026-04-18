@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="320dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="#1a1a2e">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Câu hỏi:"
+        android:textColor="#FFD700"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/et_question"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nhập câu hỏi"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:layout_marginBottom="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Đáp án A:"
+        android:textColor="#FFD700"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/et_option_a"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Đáp án A"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Đáp án B:"
+        android:textColor="#FFD700"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/et_option_b"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Đáp án B"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Đáp án C:"
+        android:textColor="#FFD700"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/et_option_c"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Đáp án C"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Đáp án D:"
+        android:textColor="#FFD700"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/et_option_d"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Đáp án D"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đáp án đúng:"
+                android:textColor="#FFD700"
+                android:textSize="14sp" />
+
+            <Spinner
+                android:id="@+id/sp_correct_answer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mức độ (1-15):"
+                android:textColor="#FFD700"
+                android:textSize="14sp" />
+
+            <Spinner
+                android:id="@+id/sp_level"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Thể loại:"
+        android:textColor="#FFD700"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/et_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="General"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Giải thích:"
+        android:textColor="#FFD700"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/et_evidence"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Giải thích đáp án"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:minLines="2"
+        android:layout_marginBottom="16dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="LƯU"
+            android:background="@drawable/btn_rect_purple"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="HỦY"
+            android:background="@drawable/btn_rect_purple"
+            android:textColor="#FFFFFF"
+            android:layout_marginStart="16dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

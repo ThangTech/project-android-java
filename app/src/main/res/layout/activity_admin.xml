@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#1a1a2e"
+    android:gravity="center_horizontal">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ADMIN PANEL"
+        android:textSize="32sp"
+        android:textColor="#FFD700"
+        android:textStyle="bold"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Quản lý ứng dụng"
+        android:textSize="16sp"
+        android:textColor="#AAAAAA"
+        android:layout_marginBottom="50dp" />
+
+    <Button
+        android:id="@+id/btn_manage_questions"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="Quản lý câu hỏi"
+        android:textSize="16sp"
+        android:background="@drawable/btn_rect_purple"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="15dp" />
+
+    <Button
+        android:id="@+id/btn_statistics"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="Xem thống kê"
+        android:textSize="16sp"
+        android:background="@drawable/btn_rect_purple"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="15dp" />
+
+    <Button
+        android:id="@+id/btn_reload_questions"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="Nạp lại câu hỏi từ JSON"
+        android:textSize="16sp"
+        android:background="@drawable/btn_rect_purple"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="50dp" />
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="ĐĂNG XUẤT"
+        android:textSize="16sp"
+        android:background="@drawable/btn_rect_purple"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="100dp" />
+
+</LinearLayout>
