@@ -28,12 +28,17 @@ public class AdminActivity extends AppCompatActivity {
 
     private void initViews() {
         Button btnManageQuestions = findViewById(R.id.btn_manage_questions);
+        Button btnManageAccounts = findViewById(R.id.btn_manage_accounts);
         Button btnStatistics = findViewById(R.id.btn_statistics);
         Button btnReloadQuestions = findViewById(R.id.btn_reload_questions);
         Button btnLogout = findViewById(R.id.btn_logout);
 
         btnManageQuestions.setOnClickListener(v -> {
             startActivity(new Intent(this, QuestionManagementActivity.class));
+        });
+
+        btnManageAccounts.setOnClickListener(v -> {
+            startActivity(new Intent(this, AccountManagementActivity.class));
         });
 
         btnStatistics.setOnClickListener(v -> {

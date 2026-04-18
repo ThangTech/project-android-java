@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#1a1a2e"
+    android:gravity="center_horizontal">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="QUẢN LÝ TÀI KHOẢN"
+        android:textSize="24sp"
+        android:textColor="#FFD700"
+        android:textStyle="bold"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp" />
+
+    <TextView
+        android:id="@+id/tv_account_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tổng tài khoản: 0"
+        android:textSize="14sp"
+        android:textColor="#AAAAAA"
+        android:layout_marginBottom="10dp" />
+
+    <ListView
+        android:id="@+id/lv_accounts"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="#333333"
+        android:dividerHeight="1dp"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="10dp" />
+
+    <TextView
+        android:id="@+id/tv_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chưa có tài khoản nào!"
+        android:textSize="16sp"
+        android:textColor="#FFFFFF"
+        android:visibility="gone"
+        android:layout_gravity="center" />
+
+    <Button
+        android:id="@+id/btn_add_account"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="THÊM TÀI KHOẢN MỚI"
+        android:textSize="14sp"
+        android:background="@drawable/btn_rect_purple"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp" />
+
+    <Button
+        android:id="@+id/btn_back"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="QUAY LẠI"
+        android:textSize="16sp"
+        android:background="@drawable/btn_rect_purple"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="20dp" />
+
+</LinearLayout>

@@ -35,6 +35,16 @@
         android:layout_marginBottom="15dp" />
 
     <Button
+        android:id="@+id/btn_manage_accounts"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="Quản lý tài khoản"
+        android:textSize="16sp"
+        android:background="@drawable/btn_rect_purple"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="15dp" />
+
+    <Button
         android:id="@+id/btn_statistics"
         android:layout_width="250dp"
         android:layout_height="wrap_content"

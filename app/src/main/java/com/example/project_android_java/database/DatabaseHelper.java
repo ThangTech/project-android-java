@@ -265,6 +265,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return userId;
     }
 
+    public List<String[]> getAllUsers() {
+        List<String[]> users = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS, null, null, null, null, null, COL_ID + " ASC");
+
+        while (cursor.moveToNext()) {
+            String[] u = {
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_USERNAME)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_PASSWORD_HASH)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_PASSWORD_SALT)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_CREATED_AT))
+            };
+            users.add(u);
+        }
+        cursor.close();
+        return users;
+    }
+
+    public int updateUser(int userId, String username, String passwordHash, String passwordSalt) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_USERNAME, username);
+        values.put(COL_PASSWORD_HASH, passwordHash);
+        values.put(COL_PASSWORD_SALT, passwordSalt);
+        int rows = db.update(TABLE_USERS, values, COL_ID + " = ?", new String[]{String.valueOf(userId)});
+        Log.d(TAG, "updateUser id=" + userId + ": rows=" + rows);
+        return rows;
+    }
+
+    public int updateUsername(int userId, String username) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_USERNAME, username);
+        int rows = db.update(TABLE_USERS, values, COL_ID + " = ?", new String[]{String.valueOf(userId)});
+        Log.d(TAG, "updateUsername id=" + userId + ": rows=" + rows);
+        return rows;
+    }
+
+    public int deleteUser(int userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_LEADERBOARD, COL_USER_ID + " = ?", new String[]{String.valueOf(userId)});
+        int rows = db.delete(TABLE_USERS, COL_ID + " = ?", new String[]{String.valueOf(userId)});
+        Log.d(TAG, "deleteUser id=" + userId + ": rows=" + rows);
+        return rows;
+    }
+
     public String[] getUserCredentials(String username) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_USERS,
