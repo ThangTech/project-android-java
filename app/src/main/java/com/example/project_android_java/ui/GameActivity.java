@@ -377,6 +377,12 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void showExplanationAndFinish() {
+        soundManager.playKetThuc(() -> {
+            runOnUiThread(() -> {
+                // nhạc kết thúc đang phát, chờ kết thúc
+            });
+        });
+
         Question q = gameManager.getCurrentQuestion();
         String correctAnswer = q.getOptions()[q.getCorrectAnswerIndex()];
         String evidence = q.getEvidence();
@@ -399,6 +405,7 @@ public class GameActivity extends AppCompatActivity {
         tvEvidence.setText(evidence);
 
         btnContinue.setOnClickListener(v -> {
+            soundManager.stopKetThuc();
             dialog.dismiss();
             finishGameWithMoney();
         });

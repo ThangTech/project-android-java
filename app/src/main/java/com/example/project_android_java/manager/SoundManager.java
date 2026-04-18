@@ -26,6 +26,7 @@ public class SoundManager {
     private int soundSage;
     private int soundQ15Background, soundCorrect15, soundCorrect5, soundWrong15;
     private int soundCorrectA, soundCorrectB, soundCorrectD;
+    private int soundKetThuc;
     private boolean isSoundEnabled = true;
 
     private MediaPlayer introPlayer;
@@ -34,6 +35,7 @@ public class SoundManager {
     private MediaPlayer readyPlayer;
     private MediaPlayer questionPlayer;
     private MediaPlayer[] questionPlayers;
+    private MediaPlayer ketThucPlayer;
 
     private SoundManager(Context context) {
         this.context = context.getApplicationContext();
@@ -105,6 +107,8 @@ public class SoundManager {
         soundCorrectA = soundPool.load(context, R.raw.dap_an_a_dung, 1);
         soundCorrectB = soundPool.load(context, R.raw.dap_b_dung, 1);
         soundCorrectD = soundPool.load(context, R.raw.dap_an_d_dung, 1);
+
+        soundKetThuc = soundPool.load(context, R.raw.nhac_ket_thuc, 1);
         
         introPlayer = MediaPlayer.create(context, R.raw.gioi_thieu_luat_choi);
         readyPlayer = MediaPlayer.create(context, R.raw.nguoi_choi_da_san_sang);
@@ -557,10 +561,44 @@ public class SoundManager {
     public void playDungLuotChoi() {
         stopBackground();
         if (!isSoundEnabled) return;
-        
+
         MediaPlayer player = MediaPlayer.create(context, R.raw.dung_luot_choi);
         if (player != null) {
             player.start();
+        }
+    }
+
+    public void playKetThuc(Runnable onComplete) {
+        stopKetThuc();
+        if (!isSoundEnabled) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
+
+        ketThucPlayer = MediaPlayer.create(context, R.raw.nhac_ket_thuc);
+        if (ketThucPlayer != null) {
+            ketThucPlayer.setOnCompletionListener(mp -> {
+                if (onComplete != null) {
+                    onComplete.run();
+                }
+            });
+            ketThucPlayer.start();
+        } else if (onComplete != null) {
+            onComplete.run();
+        }
+    }
+
+    public void stopKetThuc() {
+        if (ketThucPlayer != null) {
+            try {
+                if (ketThucPlayer.isPlaying()) {
+                    ketThucPlayer.stop();
+                }
+                ketThucPlayer.release();
+            } catch (IllegalStateException e) {
+                // Player already stopped
+            }
+            ketThucPlayer = null;
         }
     }
 
