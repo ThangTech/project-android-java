@@ -52,6 +52,10 @@ public class ScoreManager {
         return dbHelper.getGameHistoryByUser(userId);
     }
 
+    public void deleteGameHistoryByUser(int userId) {
+        dbHelper.deleteGameHistoryByUser(userId);
+    }
+
     public boolean isNewHighScore(long score) {
         return score > getHighScore();
     }

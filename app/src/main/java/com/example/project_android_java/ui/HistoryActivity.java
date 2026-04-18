@@ -1,5 +1,6 @@
 package com.example.project_android_java.ui;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -28,6 +29,7 @@ public class HistoryActivity extends AppCompatActivity {
     private TextView tvEmpty;
     private TextView tvHistoryCount;
     private Button btnBack;
+    private Button btnClearHistory;
     private ScoreManager scoreManager;
     private AuthManager authManager;
     private List<String[]> gameHistory;
@@ -55,8 +57,10 @@ public class HistoryActivity extends AppCompatActivity {
         tvEmpty = findViewById(R.id.tv_empty);
         tvHistoryCount = findViewById(R.id.tv_history_count);
         btnBack = findViewById(R.id.btn_back);
+        btnClearHistory = findViewById(R.id.btn_clear_history);
 
         btnBack.setOnClickListener(v -> finish());
+        btnClearHistory.setOnClickListener(v -> showClearConfirmDialog());
     }
 
     private void initViewsGuest() {
@@ -86,6 +90,19 @@ public class HistoryActivity extends AppCompatActivity {
             HistoryAdapter adapter = new HistoryAdapter(this, gameHistory);
             lvHistory.setAdapter(adapter);
         }
+    }
+
+    private void showClearConfirmDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Xóa lịch sử")
+                .setMessage("Bạn có chắc muốn xóa toàn bộ lịch sử chơi? Hành động này không thể hoàn tác.")
+                .setPositiveButton("Xóa", (dialog, which) -> {
+                    int userId = authManager.getCurrentUserId();
+                    scoreManager.deleteGameHistoryByUser(userId);
+                    loadHistory();
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
     }
 
     static class HistoryAdapter extends ArrayAdapter<String[]> {

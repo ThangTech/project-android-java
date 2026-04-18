@@ -45,6 +45,16 @@
         android:layout_gravity="center" />
 
     <Button
+        android:id="@+id/btn_clear_history"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="XÓA LỊCH SỬ"
+        android:textSize="14sp"
+        android:background="@drawable/btn_rect_purple"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="10dp" />
+
+    <Button
         android:id="@+id/btn_back"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
@@ -52,7 +62,6 @@
         android:textSize="16sp"
         android:background="@drawable/btn_rect_purple"
         android:textColor="#FFFFFF"
-        android:layout_marginTop="20dp"
         android:layout_marginBottom="30dp" />
 
 </LinearLayout>

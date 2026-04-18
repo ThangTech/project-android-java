@@ -381,6 +381,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return history;
     }
 
+    public void deleteGameHistoryByUser(int userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_LEADERBOARD, COL_USER_ID + " = ?", new String[]{String.valueOf(userId)});
+        Log.d(TAG, "Deleted game history for userId: " + userId);
+    }
+
     public List<String[]> getAllQuestions() {
         List<String[]> questions = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
