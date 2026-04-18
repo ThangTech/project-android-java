@@ -304,6 +304,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return rows;
     }
 
+    public int updateUserPassword(int userId, String passwordHash, String passwordSalt) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_PASSWORD_HASH, passwordHash);
+        values.put(COL_PASSWORD_SALT, passwordSalt);
+        int rows = db.update(TABLE_USERS, values, COL_ID + " = ?", new String[]{String.valueOf(userId)});
+        Log.d(TAG, "updateUserPassword id=" + userId + ": rows=" + rows);
+        return rows;
+    }
+
     public int deleteUser(int userId) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_LEADERBOARD, COL_USER_ID + " = ?", new String[]{String.valueOf(userId)});

@@ -1,9 +1,11 @@
 package com.example.project_android_java.ui;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -12,14 +14,22 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.project_android_java.R;
+import com.example.project_android_java.database.DatabaseHelper;
 import com.example.project_android_java.manager.AuthManager;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Base64;
 
 public class LoginRegisterActivity extends AppCompatActivity {
 
     private EditText etUsername, etPassword;
     private TextView tvTitle, tvError;
-    private Button btnSubmit, btnToggleMode, btnGuest;
+    private Button btnSubmit, btnToggleMode, btnGuest, btnForgotPassword;
     private AuthManager authManager;
+    private DatabaseHelper dbHelper;
 
     private boolean isLoginMode = true;
 
@@ -28,6 +38,7 @@ public class LoginRegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         authManager = AuthManager.getInstance(this);
+        dbHelper = new DatabaseHelper(this);
 
         // Already logged in -> go to MainActivity directly
         if (authManager.isLoggedIn()) {
@@ -55,6 +66,7 @@ public class LoginRegisterActivity extends AppCompatActivity {
         btnSubmit = findViewById(R.id.btn_submit);
         btnToggleMode = findViewById(R.id.btn_toggle_mode);
         btnGuest = findViewById(R.id.btn_guest);
+        btnForgotPassword = findViewById(R.id.btn_forgot_password);
     }
 
     private void setupListeners() {
@@ -109,6 +121,7 @@ public class LoginRegisterActivity extends AppCompatActivity {
 
         btnToggleMode.setOnClickListener(v -> toggleMode());
         btnGuest.setOnClickListener(v -> navigateToMain());
+        btnForgotPassword.setOnClickListener(v -> showForgotPasswordDialog());
     }
 
     private void toggleMode() {
@@ -132,6 +145,75 @@ public class LoginRegisterActivity extends AppCompatActivity {
     private void showError(String message) {
         tvError.setText(message);
         tvError.setVisibility(View.VISIBLE);
+    }
+
+    private void showForgotPasswordDialog() {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_forgot_password);
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.btn_rect_purple);
+
+        EditText etUsername = dialog.findViewById(R.id.et_username);
+        EditText etPassword = dialog.findViewById(R.id.et_password);
+        EditText etConfirmPassword = dialog.findViewById(R.id.et_confirm_password);
+        Button btnSave = dialog.findViewById(R.id.btn_save);
+        Button btnCancel = dialog.findViewById(R.id.btn_cancel);
+
+        btnSave.setOnClickListener(v -> {
+            String username = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString();
+            String confirmPassword = etConfirmPassword.getText().toString();
+
+            if (username.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập tên đăng nhập", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (password.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập mật khẩu mới", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (password.length() < 4) {
+                Toast.makeText(this, "Mật khẩu phải có ít nhất 4 ký tự", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!password.equals(confirmPassword)) {
+                Toast.makeText(this, "Mật khẩu xác nhận không khớp", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int userId = dbHelper.getUserIdByUsername(username);
+            if (userId <= 0) {
+                Toast.makeText(this, "Tên đăng nhập không tồn tại", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String salt = generateSalt();
+            String hash = hashPassword(password, salt);
+            dbHelper.updateUserPassword(userId, hash, salt);
+            Toast.makeText(this, "Đặt lại mật khẩu thành công!", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
+    }
+
+    private String generateSalt() {
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
+        return Base64.getEncoder().encodeToString(salt);
+    }
+
+    private String hashPassword(String password, String salt) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            String saltedPassword = password + salt;
+            byte[] hash = md.digest(saltedPassword.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            return null;
+        }
     }
 
     private void navigateToMain() {

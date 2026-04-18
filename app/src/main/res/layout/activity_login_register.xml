@@ -125,6 +125,20 @@
 
     <Space
         android:layout_width="match_parent"
+        android:layout_height="12dp"/>
+
+    <Button
+        android:id="@+id/btn_forgot_password"
+        android:layout_width="260dp"
+        android:layout_height="36dp"
+        android:text="Quên mật khẩu?"
+        android:textSize="13sp"
+        android:textColor="#AAAAAA"
+        android:background="@android:color/transparent"
+        android:stateListAnimator="@null"/>
+
+    <Space
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
 
