@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,9 +31,11 @@ public class QuestionManagementActivity extends AppCompatActivity {
 
     private ListView lvQuestions;
     private TextView tvEmpty, tvQuestionCount;
-    private Button btnAddQuestion, btnBack;
+    private Button btnAddQuestion, btnBack, btnClearFilter;
+    private EditText etSearch;
+    private Spinner spFilterLevel;
     private DatabaseHelper dbHelper;
-    private List<String[]> questions;
+    private List<String[]> questions, filteredQuestions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +53,45 @@ public class QuestionManagementActivity extends AppCompatActivity {
         tvQuestionCount = findViewById(R.id.tv_question_count);
         btnAddQuestion = findViewById(R.id.btn_add_question);
         btnBack = findViewById(R.id.btn_back);
+        btnClearFilter = findViewById(R.id.btn_clear_filter);
+        etSearch = findViewById(R.id.et_search);
+        spFilterLevel = findViewById(R.id.sp_filter_level);
+
+        String[] levels = new String[16];
+        levels[0] = "Tất cả";
+        for (int i = 1; i < 16; i++) levels[i] = "Cấp " + i;
+        ArrayAdapter<String> levelAdapter = new ArrayAdapter<>(this,
+                R.layout.spinner_dropdown_item, levels);
+        levelAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spFilterLevel.setAdapter(levelAdapter);
+
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                applyFilters();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        spFilterLevel.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                applyFilters();
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
+
+        btnClearFilter.setOnClickListener(v -> {
+            etSearch.setText("");
+            spFilterLevel.setSelection(0);
+        });
 
         btnAddQuestion.setOnClickListener(v -> showEditDialog(-1, null));
         btnBack.setOnClickListener(v -> finish());
@@ -56,17 +99,43 @@ public class QuestionManagementActivity extends AppCompatActivity {
 
     private void loadQuestions() {
         questions = dbHelper.getAllQuestions();
+        filteredQuestions = new ArrayList<>(questions);
+        displayQuestions();
+    }
 
-        if (questions.isEmpty()) {
+    private void applyFilters() {
+        String searchText = etSearch.getText().toString().trim().toLowerCase();
+        int selectedLevel = spFilterLevel.getSelectedItemPosition();
+
+        filteredQuestions = new ArrayList<>();
+        for (String[] q : questions) {
+            boolean matchesSearch = searchText.isEmpty() ||
+                    q[1].toLowerCase().contains(searchText);
+            boolean matchesLevel = selectedLevel == 0 ||
+                    Integer.parseInt(q[7]) == selectedLevel;
+
+            if (matchesSearch && matchesLevel) {
+                filteredQuestions.add(q);
+            }
+        }
+
+        boolean hasFilter = !searchText.isEmpty() || selectedLevel > 0;
+        btnClearFilter.setVisibility(hasFilter ? View.VISIBLE : View.GONE);
+
+        displayQuestions();
+    }
+
+    private void displayQuestions() {
+        if (filteredQuestions.isEmpty()) {
             tvEmpty.setVisibility(View.VISIBLE);
             lvQuestions.setVisibility(View.GONE);
             tvQuestionCount.setText("Tổng câu hỏi: 0");
         } else {
             tvEmpty.setVisibility(View.GONE);
             lvQuestions.setVisibility(View.VISIBLE);
-            tvQuestionCount.setText("Tổng câu hỏi: " + questions.size());
+            tvQuestionCount.setText("Tổng câu hỏi: " + filteredQuestions.size());
 
-            QuestionAdapter adapter = new QuestionAdapter(this, questions);
+            QuestionAdapter adapter = new QuestionAdapter(this, filteredQuestions);
             lvQuestions.setAdapter(adapter);
         }
     }

@@ -23,7 +23,49 @@
         android:text="Tổng câu hỏi: 0"
         android:textSize="14sp"
         android:textColor="#AAAAAA"
-        android:layout_marginBottom="10dp" />
+        android:layout_marginBottom="5dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:layout_marginBottom="5dp">
+
+        <EditText
+            android:id="@+id/et_search"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:hint="Tìm kiếm câu hỏi..."
+            android:textColor="#FFFFFF"
+            android:textColorHint="#888888"
+            android:background="@drawable/btn_rect_purple"
+            android:paddingHorizontal="12dp"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:maxLines="1" />
+
+        <Spinner
+            android:id="@+id/sp_filter_level"
+            android:layout_width="90dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/btn_rect_purple"
+            android:paddingHorizontal="8dp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_clear_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:text="Xóa bộ lọc"
+        android:textSize="12sp"
+        android:background="@drawable/btn_rect_purple"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="5dp"
+        android:visibility="gone" />
 
     <ListView
         android:id="@+id/lv_questions"
