@@ -4,7 +4,9 @@
       "Bash(./gradlew assembleDebug 2>&1 | tail -30)",
       "Bash(export JAVA_HOME=\"/c/Program Files/Android/Android Studio/jbr\" && /d/projectandroidjava/gradlew assembleDebug 2>&1 | tail -40)",
       "Read(//c//**)",
-      "Read(//mnt/**)"
+      "Read(//mnt/**)",
+      "Bash(cd /d D:\\\\projectandroidjava)",
+      "Bash(./gradlew assembleDebug)"
     ]
   }
 }

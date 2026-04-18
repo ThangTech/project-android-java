@@ -20,7 +20,7 @@ import com.example.project_android_java.manager.AuthManager;
 public class MainActivity extends AppCompatActivity {
 
     private Button btnPlay;
-    private ImageButton btnInfo, btnRank, btnSettings;
+    private ImageButton btnInfo, btnRank, btnSettings, btnHistory;
     private MediaPlayer introPlayer;
     private SharedPreferences prefs;
     private AuthManager authManager;
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         btnInfo = findViewById(R.id.btn_info);
         btnRank = findViewById(R.id.btn_rank);
         btnSettings = findViewById(R.id.btn_settings);
+        btnHistory = findViewById(R.id.btn_history);
         tvWelcome = findViewById(R.id.tv_welcome);
         btnLogin = findViewById(R.id.btn_login);
         btnLogout = findViewById(R.id.btn_logout);
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         btnInfo.setOnClickListener(v -> showInfoDialog());
         btnRank.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RankActivity.class)));
         btnSettings.setOnClickListener(v -> showSettingsDialog());
+        btnHistory.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HistoryActivity.class)));
 
         btnLogin.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, LoginRegisterActivity.class)));
 

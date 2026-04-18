@@ -360,6 +360,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return highScore;
     }
 
+    public List<String[]> getGameHistoryByUser(int userId) {
+        List<String[]> history = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + TABLE_LEADERBOARD +
+                " WHERE " + COL_USER_ID + " = ?" +
+                " ORDER BY " + COL_DATE_PLAYED + " DESC";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+        while (cursor.moveToNext()) {
+            String[] h = {
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_SCORE)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_QUESTIONS_CORRECT)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_DATE_PLAYED)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COL_PLAYER_NAME))
+            };
+            history.add(h);
+        }
+        cursor.close();
+        return history;
+    }
+
     public List<String[]> getAllQuestions() {
         List<String[]> questions = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();

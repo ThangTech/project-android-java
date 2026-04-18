@@ -48,6 +48,10 @@ public class ScoreManager {
         return dbHelper.getHighScoreByUser(userId);
     }
 
+    public List<String[]> getGameHistoryByUser(int userId) {
+        return dbHelper.getGameHistoryByUser(userId);
+    }
+
     public boolean isNewHighScore(long score) {
         return score > getHighScore();
     }
