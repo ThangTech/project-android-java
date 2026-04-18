@@ -52,7 +52,7 @@ D--projectandroidjava/
 ### Nguồn Câu Hỏi
 - File: `app/src/main/assets/question.json`
 - Định dạng JSON với ~105 câu hỏi ban đầu
-- Phân bố: Level 1-15 (không có level 11 trong bộ câu hỏi gốc)
+- Phân bố: Level 1-15
 
 ### Cấu Trúc Câu Hỏi
 ```json
